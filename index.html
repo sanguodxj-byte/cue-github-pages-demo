@@ -138,9 +138,9 @@ const TURRETS = [
   // 炮塔2：4 根水平发射管(开口朝右)，初始预装 4 枚火箭弹，逐枚发射
   //   挂点 y = 4 根管腔中线(几何剖面测量 322/450/570/698)；x=488 为管腔左右居中
   { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
-    barrel:'t2_body', recoilLayer:null, body:'t2_body', face:0, ammo:'ammo_rocket', ammoWidth:200, mountWidth:200,
-    preloads:[[488,321],[488,448],[488,574],[488,698]],
-    muzzles:[[1000,321],[1000,448],[1000,574],[1000,698]] },
+    barrel:'t2_body', recoilLayer:null, body:'t2_body', face:Math.PI, ammo:'ammo_rocket', ammoWidth:160, mountWidth:160,
+    preloads:[[463,321],[463,448],[463,574],[463,698]],
+    muzzles:[[24,321],[24,448],[24,574],[24,698]] },
   { id:'tp', label:'超时空传送装置', layers:['teleporter'], group:[], barrel:null, muzzles:[] },
 ];
 let cur = 0;
@@ -400,7 +400,7 @@ function drawMount(m, rot, extraX, width){
   ctx.save();
   ctx.translate(p.x,p.y); ctx.rotate(rot); ctx.translate(-p.x,-p.y);
   if(extraX) ctx.translate(extraX,0);
-  ctx.translate(c.x, c.y); ctx.rotate(Math.PI/2);
+  ctx.translate(c.x, c.y); ctx.rotate(-Math.PI/2);   // 弹尖朝局部 -x（反转方向后为发射口侧）
   ctx.drawImage(im, -Sz/2, -Sz/2, Sz, Sz);
   ctx.restore();
 }

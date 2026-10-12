@@ -135,7 +135,7 @@ const TURRETS = [
   // 炮塔1：炮管做位移当延长炮管，且垫在主体【下方】（后画的盖住先画的）→ 底座 → 炮管(位移) → 主体
   { id:'t1', label:'炮塔 1', layers:['base','t1_barrel','t1_body'], group:['t1_body','t1_barrel'],
     barrel:'t1_barrel', recoilLayer:'t1_barrel', body:'t1_body', face:Math.PI, muzzles:[[0,512]], ammo:'ammo_shell' },
-  // 炮塔2：4 根水平发射管(开口朝右)，演示时上/下两管预装火箭弹；开火 = 这两管齐射打空，架上一发不留
+  // 炮塔2：4 根水平发射管(开口朝右)，演示时上/下两管预装火箭弹；开火 = 逐管依次发射(FIRE_INTERVAL 一发)，打空后延迟 RELOAD_DELAY 再装填
   //   挂点 y = 4 根管腔中线(几何剖面测量 322/450/570/698)；x=488 为管腔左右居中
   { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
     barrel:'t2_body', recoilLayer:null, body:'t2_body', face:Math.PI, ammo:'ammo_rocket', ammoWidth:160, mountWidth:160,
@@ -161,6 +161,8 @@ const RECOIL_HOLD = 0.5;       // 缩到底后停留时间(s)
 const RECOIL_EXTEND = 120;     // 伸出（回位）速度：原 240 减 50%
 // 后坐位移【只作用于 recoilLayer 指定的炮管层】：炮塔本身(底座/主体等)一律不做任何位移
 const RELOAD_TIME = 2.0;       // 预装弹打空后自动装填耗时(s)：按此时间逐枚上弹（0.5s 一枚）
+const FIRE_INTERVAL = 0.2;     // 开火后逐管发射间隔(s)：一发一发打出去（非同时齐射）
+const RELOAD_DELAY = 1.0;      // 打空后到「开始装填」的延迟(s)：架上先空一段再上弹
 
 // 每层状态
 const S = {};
@@ -172,6 +174,7 @@ const st = {
   mode:'follow', rotmode:'group', angle:Math.PI, zoom:0.45, cell:0,
   pivot:[512,512], mouse:{x:512,y:160}, sweepT:0, recoil:0, recoilT:0, recoilPhase:'idle', flash:0,
   loaded:[], flashM:null, fired:[], reloading:false, reloadT:0,
+  burst:false, fireT:0, reloadDelay:0,
   projectiles:[], solo:null
 };
 
@@ -279,21 +282,18 @@ function doReset(){
 }
 function reloadMounts(){   // 重新装填：预装挂点全部复位为「已装填」，并清空装填/已发记录
   const T=TURRETS[cur]; st.loaded = T.preloads ? T.preloads.map((_,i)=>i) : [];
-  st.fired=[]; st.reloading=false; st.reloadT=0;
+  st.fired=[]; st.reloading=false; st.reloadT=0; st.burst=false; st.fireT=0; st.reloadDelay=0;
 }
 function doFire(){
   const T=TURRETS[cur];
-  if(st.reloading) return;                     // 装填中不可发射
+  if(st.reloading || st.reloadDelay>0 || st.burst) return;   // 装填中 / 待装填 / 上一轮还没打完 → 不可发射
   if(T.preloads && T.preloads.length){
-    if(!st.loaded.length){ st.reloading=true; st.reloadT=RELOAD_TIME; return; }
-    const tubes = st.loaded.slice();            // 本次把架上【已装填的管全部打空】：演示后架上一发不留
-    st.loaded = [];
-    tubes.forEach(idx=>{ st.fired.push(idx); spawnProjectiles(idx); });
-    st.reloading = true; st.reloadT = RELOAD_TIME;   // 打空 → 自动装填
+    if(!st.loaded.length){ st.reloadDelay = RELOAD_DELAY; return; }   // 架上无弹 → 延迟后装填
+    st.burst = true; st.fireT = 0;              // 开火：进入逐管连发（一发一发打，非齐射）
   } else {
     spawnProjectiles();
+    st.recoilPhase='back'; st.recoilT=0; st.flash=1;
   }
-  st.recoilPhase='back'; st.recoilT=0; st.flash=1;
 }
 
 /* ---------------- 交互 ---------------- */
@@ -350,6 +350,24 @@ function frame(now){
     st.recoil = Math.max(0, st.recoil - RECOIL_EXTEND*dt);
     if(st.recoil <= 0) st.recoilPhase='idle';
   }
+  // 逐管连发：从架上取出一发打出去，每 FIRE_INTERVAL 秒一发（一发一发打，非齐射）
+  if(st.burst){
+    st.fireT -= dt;
+    if(st.fireT <= 0){
+      const idx = st.loaded.shift();
+      if(idx != null){
+        st.fired.push(idx); spawnProjectiles(idx);
+        st.recoilPhase='back'; st.recoilT=0; st.flash=1;
+      }
+      st.fireT = FIRE_INTERVAL;
+      if(!st.loaded.length){ st.burst=false; st.reloadDelay=RELOAD_DELAY; }   // 打空 → 延迟后再装填
+    }
+  }
+  // 装填延迟：打空后先空 RELOAD_DELAY 秒，再开始自动装填
+  if(st.reloadDelay > 0){
+    st.reloadDelay -= dt;
+    if(st.reloadDelay <= 0){ st.reloadDelay = 0; st.reloading = true; st.reloadT = RELOAD_TIME; }
+  }
   // 自动装填：打空后按 RELOAD_TIME 逐枚上弹（每满一个 per 秒补一枚，首枚不抢跑；从最后一根管往回补）
   if(st.reloading){
     const T=TURRETS[cur], n=(T.preloads?T.preloads.length:0);
@@ -367,7 +385,7 @@ function frame(now){
   const x0 = 512-hw-400, x1 = 512+hw+400, y0 = 512-hw-400, y1 = 512+hw+400;
   st.projectiles = st.projectiles.filter(p=>p.life>0 && p.x>=x0 && p.x<=x1 && p.y>=y0 && p.y<=y1);
   draw();
-  if(st.reloading){   // 装填中提示
+  if(st.reloading || st.reloadDelay>0){   // 装填中提示（含打空后的装填延迟段）
     ctx.save(); ctx.fillStyle='rgba(255,214,120,.95)';
     ctx.font='600 24px system-ui,"Microsoft YaHei",sans-serif';
     ctx.fillText('装填中…', 22, 42); ctx.restore();

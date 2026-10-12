@@ -138,7 +138,7 @@ const TURRETS = [
   // 炮塔2：4 根水平发射管(开口朝右)，初始预装 4 枚火箭弹，逐枚发射
   //   挂点 y = 4 根管腔中线(几何剖面测量 322/450/570/698)；x=488 为管腔左右居中
   { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
-    barrel:'t2_body', recoilLayer:null, body:'t2_body', face:0, ammo:'ammo_rocket', mountWidth:56,
+    barrel:'t2_body', recoilLayer:null, body:'t2_body', face:0, ammo:'ammo_rocket', mountWidth:62,
     preloads:[[488,321],[488,448],[488,574],[488,698]],
     muzzles:[[1000,321],[1000,448],[1000,574],[1000,698]] },
   { id:'tp', label:'超时空传送装置', layers:['teleporter'], group:[], barrel:null, muzzles:[] },
@@ -156,6 +156,7 @@ const RECOIL_SLOW = 300;       // 回缩末段速度（末段 20px 慢速走完�
 const RECOIL_HOLD = 0.5;       // 缩到底后停留时间(s)
 const RECOIL_EXTEND = 120;     // 伸出（回位）速度：原 240 减 50%
 // 后坐位移【只作用于 recoilLayer 指定的炮管层】：炮塔本身(底座/主体等)一律不做任何位移
+const RELOAD_TIME = 2.0;       // 预装弹打空后自动装填耗时(s)：按此时间逐枚上弹（0.5s 一枚）
 
 // 每层状态
 const S = {};
@@ -166,7 +167,7 @@ PARTS.forEach(p => { const d = LAYER_DEFAULT[p.key] || {}; S[p.key] = { vis:true
 const st = {
   mode:'follow', rotmode:'group', angle:Math.PI, zoom:0.45, cell:0,
   pivot:[512,512], mouse:{x:512,y:160}, sweepT:0, recoil:0, recoilT:0, recoilPhase:'idle', flash:0,
-  loaded:[], flashM:null,
+  loaded:[], flashM:null, fired:[], reloading:false, reloadT:0,
   projectiles:[], solo:null
 };
 
@@ -272,14 +273,19 @@ function doReset(){
   buildLayers();
   document.querySelectorAll('.item').forEach(x=>x.classList.remove('act'));
 }
-function reloadMounts(){   // 重新装填：把预装挂点全部标记为「已装填」
+function reloadMounts(){   // 重新装填：预装挂点全部复位为「已装填」，并清空装填/已发记录
   const T=TURRETS[cur]; st.loaded = T.preloads ? T.preloads.map((_,i)=>i) : [];
+  st.fired=[]; st.reloading=false; st.reloadT=0;
 }
 function doFire(){
   const T=TURRETS[cur];
+  if(st.reloading) return;                     // 装填中不可发射
   if(T.preloads && T.preloads.length){
-    if(!st.loaded.length) return;              // 已打空：需按 R 复位/重新装填
-    spawnProjectiles(st.loaded.shift());        // 逐枚：只发射当前这一管
+    if(!st.loaded.length){ st.reloading=true; st.reloadT=RELOAD_TIME; return; }
+    const idx = st.loaded.shift();              // 逐枚：只发射当前这一管
+    st.fired.push(idx);
+    spawnProjectiles(idx);
+    if(!st.loaded.length){ st.reloading=true; st.reloadT=RELOAD_TIME; }   // 四枚打空 → 自动装填
   } else {
     spawnProjectiles();
   }
@@ -340,12 +346,28 @@ function frame(now){
     st.recoil = Math.max(0, st.recoil - RECOIL_EXTEND*dt);
     if(st.recoil <= 0) st.recoilPhase='idle';
   }
+  // 自动装填：打空后按 RELOAD_TIME 逐枚上弹（从最后一根管往回补）
+  if(st.reloading){
+    const T=TURRETS[cur], n=(T.preloads?T.preloads.length:0);
+    if(n){
+      st.reloadT -= dt;
+      const per = RELOAD_TIME/n;
+      const want = Math.min(n, Math.max(0, Math.ceil((RELOAD_TIME-st.reloadT)/per)));
+      while(st.loaded.length < want && st.fired.length) st.loaded.unshift(st.fired.pop());
+      if(st.reloadT <= 0){ st.reloading=false; st.reloadT=0; st.fired=[]; }
+    } else { st.reloading=false; }
+  }
   st.flash = Math.max(0, st.flash - dt*9);
   st.projectiles.forEach(p=>{ p.x+=p.vx*dt*12000; p.y+=p.vy*dt*12000; p.life--; });   // 飞行速度 2400 → 12000（×5）
   const hw = (V/2)/st.zoom;                       // 当前可见的世界半径
   const x0 = 512-hw-400, x1 = 512+hw+400, y0 = 512-hw-400, y1 = 512+hw+400;
   st.projectiles = st.projectiles.filter(p=>p.life>0 && p.x>=x0 && p.x<=x1 && p.y>=y0 && p.y<=y1);
   draw();
+  if(st.reloading){   // 装填中提示
+    ctx.save(); ctx.fillStyle='rgba(255,214,120,.95)';
+    ctx.font='600 24px system-ui,"Microsoft YaHei",sans-serif';
+    ctx.fillText('装填中…', 22, 42); ctx.restore();
+  }
   requestAnimationFrame(frame);
 }
 

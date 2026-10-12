@@ -135,7 +135,7 @@ const TURRETS = [
   // 炮塔1：炮管做位移当延长炮管，且垫在主体【下方】（后画的盖住先画的）→ 底座 → 炮管(位移) → 主体
   { id:'t1', label:'炮塔 1', layers:['base','t1_barrel','t1_body'], group:['t1_body','t1_barrel'],
     barrel:'t1_barrel', recoilLayer:'t1_barrel', body:'t1_body', face:Math.PI, muzzles:[[0,512]], ammo:'ammo_shell' },
-  // 炮塔2：4 根水平发射管(开口朝右)，初始预装 4 枚火箭弹，逐枚发射
+  // 炮塔2：4 根水平发射管(开口朝右)，演示时上/下两管预装火箭弹；开火 = 这两管齐射打空，架上一发不留
   //   挂点 y = 4 根管腔中线(几何剖面测量 322/450/570/698)；x=488 为管腔左右居中
   { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
     barrel:'t2_body', recoilLayer:null, body:'t2_body', face:Math.PI, ammo:'ammo_rocket', ammoWidth:160, mountWidth:160,
@@ -286,10 +286,10 @@ function doFire(){
   if(st.reloading) return;                     // 装填中不可发射
   if(T.preloads && T.preloads.length){
     if(!st.loaded.length){ st.reloading=true; st.reloadT=RELOAD_TIME; return; }
-    const idx = st.loaded.shift();              // 逐枚：只发射当前这一管
-    st.fired.push(idx);
-    spawnProjectiles(idx);
-    if(!st.loaded.length){ st.reloading=true; st.reloadT=RELOAD_TIME; }   // 四枚打空 → 自动装填
+    const tubes = st.loaded.slice();            // 本次把架上【已装填的管全部打空】：演示后架上一发不留
+    st.loaded = [];
+    tubes.forEach(idx=>{ st.fired.push(idx); spawnProjectiles(idx); });
+    st.reloading = true; st.reloadT = RELOAD_TIME;   // 打空 → 自动装填
   } else {
     spawnProjectiles();
   }
@@ -350,13 +350,13 @@ function frame(now){
     st.recoil = Math.max(0, st.recoil - RECOIL_EXTEND*dt);
     if(st.recoil <= 0) st.recoilPhase='idle';
   }
-  // 自动装填：打空后按 RELOAD_TIME 逐枚上弹（从最后一根管往回补）
+  // 自动装填：打空后按 RELOAD_TIME 逐枚上弹（每满一个 per 秒补一枚，首枚不抢跑；从最后一根管往回补）
   if(st.reloading){
     const T=TURRETS[cur], n=(T.preloads?T.preloads.length:0);
     if(n){
       st.reloadT -= dt;
       const per = RELOAD_TIME/n;
-      const want = Math.min(n, Math.max(0, Math.ceil((RELOAD_TIME-st.reloadT)/per)));
+      const want = Math.min(n, Math.max(0, Math.floor((RELOAD_TIME-st.reloadT)/per)));
       while(st.loaded.length < want && st.fired.length) st.loaded.unshift(st.fired.pop());
       if(st.reloadT <= 0){ st.reloading=false; st.reloadT=0; st.fired=[]; }
     } else { st.reloading=false; }

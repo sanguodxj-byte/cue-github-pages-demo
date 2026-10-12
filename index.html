@@ -147,6 +147,10 @@ let cur = 0;
 
 // 飞行弹药默认目标宽度（原生 px）：弹体宽度 ≈ 炮管/发射管末端宽度（各装置可用 ammoWidth 单独覆盖）
 const AMMO_WIDTH = 100;
+// 火箭弹贴图整体沿发射方向前移的原生 px（管内预装弹与在飞弹都按此平移）
+const AMMO_FWD_PX = 100;
+// 弹体特效（尾焰/尾迹）发生点落在贴图哪个位置：'center'(中心) | 'nose'(贴图前端=弹头侧) | 'tail'(贴图另一端=弹尾侧)
+const AMMO_EFFECT_ANCHOR = 'tail';
 
 // 后坐（回缩/伸出）动画参数（原生 px、px/s、s）；只作用于炮管层，纯平移无形变
 const RECOIL_MAX = 120;        // 回退距离
@@ -393,7 +397,9 @@ function drawMount(m, rot, extraX, width){
   if(!im || !im.complete || !im.naturalWidth) return;
   const ap = PART[T.ammo]; if(!ap) return;
   const cw = Math.max(1, ap.bbox[2]-ap.bbox[0]);      // 贴图内容宽度(原生px)
-  const Sz = (width*128/cw) * st.zoom;                // 绘制边长：弹体可见宽度 ≈ width
+  const side = ap.w || cw;                            // 源图边长(原生px)：随分辨率自适应，不写死 128
+  const Sz = (width*side/cw) * st.zoom;               // 绘制边长：弹体可见宽度 ≈ width
+  const fwd = AMMO_FWD_PX * st.zoom;                  // 贴图整体沿发射方向前移（局部 -x = 发射口侧）
   const bk = T.body; const bo = (bk && S[bk]) ? S[bk] : {dx:0,dy:0};
   const c = w2s(m[0]+bo.dx, m[1]+bo.dy, st.zoom);
   const p = w2s(st.pivot[0], st.pivot[1], st.zoom);
@@ -401,7 +407,7 @@ function drawMount(m, rot, extraX, width){
   ctx.translate(p.x,p.y); ctx.rotate(rot); ctx.translate(-p.x,-p.y);
   if(extraX) ctx.translate(extraX,0);
   ctx.translate(c.x, c.y); ctx.rotate(-Math.PI/2);   // 弹尖朝局部 -x（反转方向后为发射口侧）
-  ctx.drawImage(im, -Sz/2, -Sz/2, Sz, Sz);
+  ctx.drawImage(im, -Sz/2, -Sz/2 - fwd, Sz, Sz);     // 沿弹轴(贴图 -y＝弹头方向)前移 fwd
   ctx.restore();
 }
 
@@ -453,21 +459,36 @@ function draw(){
     const sc=w2s(p.x,p.y);
     const ang=Math.atan2(p.vy,p.vx);
     const im = T.ammo?IMG[T.ammo]:null;
+    let fx=sc.x, fy=sc.y;                       // 特效发生点（尾焰/尾迹起点），默认弹体中心
     if(im && im.complete && im.naturalWidth){
       // 弹药贴图：默认弹头朝上 → 顺时针转 90° 对齐飞行方向
       const ap = PART[T.ammo];
-      const cw = ap ? (ap.bbox[2]-ap.bbox[0]) : 33;   // 贴图内容宽度(原生px)
-      const S = ((T.ammoWidth||AMMO_WIDTH)*128/cw) * st.zoom;   // 弹体可见宽度≈该装置的 ammoWidth（炮塔2 飞行弹=200，其余默认 100）
+      const cw = ap ? Math.max(1, ap.bbox[2]-ap.bbox[0]) : 33;   // 贴图内容宽度(原生px)
+      const side = (ap && ap.w) || cw;                           // 源图边长(原生px)：随分辨率自适应，不写死 128
+      const S = ((T.ammoWidth||AMMO_WIDTH)*side/cw) * st.zoom;   // 弹体可见宽度≈该装置的 ammoWidth（炮塔2 发射架=160，其余默认 100）
+      const fwd = AMMO_FWD_PX * st.zoom;                         // 贴图整体沿发射方向前移
+      const half = S/2;                                          // 贴图半长（内容满高 → 两端即贴图两端）
+      const ex = AMMO_EFFECT_ANCHOR==='tail' ? half : (AMMO_EFFECT_ANCHOR==='nose' ? -half : 0);
       ctx.save(); ctx.translate(sc.x,sc.y); ctx.rotate(ang + Math.PI/2);
-      ctx.drawImage(im, -S/2, -S/2, S, S);
+      ctx.drawImage(im, -S/2, -S/2 - fwd, S, S);
       ctx.restore();
+      const anchor = ex - fwd;                                   // 随贴图前移一起平移
+      fx = sc.x - p.vx*anchor; fy = sc.y - p.vy*anchor;           // 沿弹轴把特效点挪到贴图另一端
+      if(AMMO_EFFECT_ANCHOR!=='center'){                          // 尾焰：标出特效发生点
+        const r = Math.max(4, half*0.22);
+        const g=ctx.createRadialGradient(fx,fy,0,fx,fy,r);
+        g.addColorStop(0,'rgba(255,240,190,.95)');
+        g.addColorStop(0.45,'rgba(255,170,60,.7)');
+        g.addColorStop(1,'rgba(255,120,0,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(fx,fy,r,0,7); ctx.fill();
+      }
     } else {
       ctx.fillStyle='rgba(255,214,120,.95)';
       ctx.beginPath(); ctx.arc(sc.x,sc.y,3.5,0,7); ctx.fill();
     }
-    // 尾迹
+    // 尾迹：从特效发生点往弹尾方向拖出
     ctx.strokeStyle='rgba(255,170,60,.45)'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(sc.x,sc.y); ctx.lineTo(sc.x-p.vx*14,sc.y-p.vy*14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx-p.vx*14,fy-p.vy*14); ctx.stroke();
   });
 
   // pivot / muzzle 标记

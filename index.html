@@ -139,8 +139,8 @@ const TURRETS = [
   //   挂点 y = 4 根管腔中线(几何剖面测量 322/450/570/698)；x=488 为管腔左右居中
   { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
     barrel:'t2_body', recoilLayer:null, body:'t2_body', face:Math.PI, ammo:'ammo_rocket', ammoWidth:160, mountWidth:160,
-    preloads:[[463,321],[463,448],[463,574],[463,698]],
-    muzzles:[[24,321],[24,448],[24,574],[24,698]] },
+    preloads:[[463,321],[463,698]],
+    muzzles:[[24,321],[24,698]] },
   { id:'tp', label:'超时空传送装置', layers:['teleporter'], group:[], barrel:null, muzzles:[] },
 ];
 let cur = 0;
@@ -511,7 +511,7 @@ window.addEventListener('load', ()=>{
     tips.push(`${p.label}: 内容触及画布边缘 bbox=[${p.bbox.join(', ')}]，旋转时可能出现切边`); });
   if(tips.length){ warn.style.display='block'; warn.textContent='⚠ '+tips.join('；'); }
 });
-reloadMounts();               // 初始装填（炮塔2 预装 4 枚）
+reloadMounts();               // 初始装填（炮塔2 预装 2 枚：上/下两格，中间两格不装弹）
 requestAnimationFrame(frame);
 </script>
 </body>

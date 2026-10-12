@@ -1,34 +1,451 @@
-<!doctype html>
+<!-- AI生成 -->
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101522">
-  <meta name="description" content="GitHub Pages 静态站点部署测试页面。">
-  <title>GitHub Pages 部署测试</title>
-  <style>
-    :root { color-scheme: dark; --ink:#eef2ff; --muted:#aab4cf; --line:rgba(255,255,255,.14); --accent:#92f0c5; }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; display:grid; place-items:center; padding:28px; color:var(--ink); font:16px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; background:radial-gradient(ellipse at 20% 10%,#23365a 0,transparent 42%),radial-gradient(ellipse at 90% 90%,#17433d 0,transparent 35%),#101522; }
-    main { width:min(720px,100%); padding:clamp(28px,7vw,64px); border:1px solid var(--line); border-radius:28px; background:rgba(17,23,38,.78); box-shadow:0 28px 90px rgba(0,0,0,.32); }
-    .badge { display:inline-flex; align-items:center; gap:9px; padding:7px 12px; border:1px solid rgba(146,240,197,.35); border-radius:999px; color:var(--accent); font-size:13px; letter-spacing:.04em; }
-    .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 14px var(--accent); }
-    h1 { margin:26px 0 12px; font-size:clamp(36px,8vw,58px); line-height:1.1; letter-spacing:-.045em; }
-    p { margin:0; color:var(--muted); }
-    .lead { max-width:540px; font-size:19px; }
-    .rule { height:1px; margin:34px 0 22px; background:var(--line); }
-    .note { font-size:14px; }
-    footer { margin-top:38px; color:#78839d; font-size:12px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>炮塔组合动画预览服务 · Nivarian Can Fly</title>
+<script src="assets/data.js"></script>
+<style>
+  *{box-sizing:border-box}
+  :root{--bg:#111215;--panel:#18191d;--line:#282a30;--fg:#ededed;--mut:#9ca3af;--acc:#2563eb;--acc2:#1d4ed8;--warn:#f59e0b}
+  body{margin:0;padding:12px;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+  h1{font-size:16px;margin:0 0 2px}
+  .sub{font-size:12px;color:var(--mut);margin-bottom:10px}
+  .layout{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  canvas{display:block;border-radius:6px;cursor:crosshair;background:#141518;height:auto}
+  .hud{position:absolute;left:16px;top:16px;font-size:11px;color:var(--mut);pointer-events:none;
+    background:rgba(0,0,0,.35);padding:4px 8px;border-radius:5px;line-height:1.5}
+  .hud b{color:#e5e7eb}
+  .side{width:360px;display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}
+  .card h3{margin:0 0 8px;font-size:13px;font-weight:600;color:#f3f4f6}
+  .row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;color:#d1d5db}
+  .row label{flex:0 0 auto;color:var(--mut)}
+  .row .grow{flex:1}
+  input[type=range]{flex:1;accent-color:var(--acc);height:16px}
+  .val{min-width:44px;text-align:right;font-variant-numeric:tabular-nums;color:#e5e7eb}
+  button{padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;background:var(--acc);color:#fff;
+    border:none;border-radius:5px;transition:.15s}
+  button:hover{background:var(--acc2)}
+  button:active{transform:scale(.98)}
+  button.sec{background:#2a2c33;color:#d1d5db}
+  button.sec:hover{background:#373a44}
+  button.on{background:var(--acc)}
+  .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:5px 10px;border-radius:14px;background:#22242b;border:1px solid #31343d;font-size:12px;cursor:pointer;color:#d1d5db}
+  .chip.sel{background:var(--acc);border-color:var(--acc);color:#fff}
+  .tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+  .layers{display:grid;gap:4px}
+  .layer{display:grid;grid-template-columns:18px 1fr 58px 58px;gap:6px;align-items:center;font-size:11.5px;
+    background:#1e2026;border:1px solid #2b2e36;border-radius:5px;padding:4px 6px}
+  .layer.solo{border-color:var(--acc)}
+  .layer input[type=number]{width:58px;background:#15171b;border:1px solid #31343d;color:#e5e7eb;border-radius:4px;padding:2px 4px;font-size:11px}
+  .layer .nm{display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .layer .dot{width:9px;height:9px;border-radius:2px}
+  .inspect{max-height:300px;overflow:auto;display:grid;gap:8px}
+  .item{display:grid;grid-template-columns:64px 1fr;gap:8px;background:#1e2026;border:1px solid #2b2e36;border-radius:6px;padding:6px;cursor:pointer}
+  .item:hover{border-color:#3b3f4a}
+  .item.act{border-color:var(--acc)}
+  .thumb{width:64px;height:64px;border-radius:4px;display:block;
+    background-image:linear-gradient(45deg,#2a2a2e 25%,transparent 25%),linear-gradient(-45deg,#2a2a2e 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a2e 75%),linear-gradient(-45deg,transparent 75%,#2a2a2e 75%);
+    background-size:12px 12px;background-position:0 0,0 6px,6px -6px,-6px 0}
+  .thumb img{width:100%;height:100%;object-fit:contain}
+  .meta{font-size:11px;color:var(--mut);line-height:1.5}
+  .meta b{color:#e5e7eb}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:3px;vertical-align:-1px;border:1px solid #00000055}
+  .note{font-size:11px;color:var(--warn);line-height:1.5;margin-top:6px}
+  kbd{background:#2a2c33;border:1px solid #3b3f4a;border-radius:3px;padding:0 4px;font-size:10.5px}
+</style>
 </head>
 <body>
-  <main>
-    <span class="badge"><span class="dot" aria-hidden="true"></span>发布测试 · 2026年10月</span>
-    <h1>GitHub Pages<br>部署测试</h1>
-    <p class="lead">如果你能看到这个页面，说明静态站点已成功发布。</p>
-    <div class="rule"></div>
-    <p class="note">这是一个临时示例页面，用于验证 GitHub Pages 部署流程。未收集或展示个人信息。</p>
-    <footer>由 GitHub Pages 提供静态托管。</footer>
-  </main>
+<h1>炮塔组合动画预览服务</h1>
+<div class="sub">叠加 需求及素材/炮塔 的部件 → 测试瞄准 / 扫描 / 开火动画。拖动画布瞄准，<kbd>空格</kbd> 开火，<kbd>R</kbd> 复位。绿色十字=pivot（旋转中心），红点=炮口。</div>
+
+<div class="layout">
+  <div class="stage">
+    <canvas id="cv" width="1960" height="1960"></canvas>
+    <div class="hud" id="hud"></div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h3>装置</h3>
+      <div class="tabs" id="tabs"></div>
+      <div class="row"><label>瞄准</label>
+        <div class="chips" id="modes">
+          <div class="chip sel" data-m="follow">跟随鼠标</div>
+          <div class="chip" data-m="sweep">自动扫描</div>
+          <div class="chip" data-m="fixed">手动角度</div>
+        </div>
+      </div>
+      <div class="row"><label>旋转</label>
+        <div class="chips" id="rotmode">
+          <div class="chip sel" data-r="group">整体（主体+炮管）</div>
+          <div class="chip" data-r="barrel">仅炮管</div>
+        </div>
+      </div>
+      <div class="row"><label>角度</label><input type="range" id="ang" min="0" max="360" value="180"><span class="val" id="angv">180°</span></div>
+      <div class="row"><label>缩放</label><input type="range" id="zoom" min="30" max="260" value="45"><span class="val" id="zoomv">0.45</span></div>
+      <div class="row"><label>格宽</label><input type="range" id="cell" min="0" max="400" value="0"><span class="val" id="cellv">关</span></div>
+      <div class="btns">
+        <button id="fire">开火</button>
+        <button class="sec" id="recenter">按 bbox 居中各层</button>
+        <button class="sec" id="reset">复位</button>
+      </div>
+      <div class="note" id="warn" style="display:none"></div>
+    </div>
+
+    <div class="card">
+      <h3>图层 / 校准</h3>
+      <div class="layers" id="layers"></div>
+      <div class="row" style="margin-top:8px"><label>pivot X</label><input type="range" id="pvx" min="0" max="1024" value="512"><span class="val" id="pvxv">512</span></div>
+      <div class="row"><label>pivot Y</label><input type="range" id="pvy" min="0" max="1024" value="512"><span class="val" id="pvyv">512</span></div>
+      <div class="note" style="color:var(--mut)">pivot 决定旋转中心，应与底座圆心重合；各层 <b>dx/dy</b> 为原生像素偏移（1024 画布内）。</div>
+    </div>
+
+    <div class="card">
+      <h3>图片内容检查（点击单独查看）</h3>
+      <div class="inspect" id="inspect"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PARTS = window.TURRET_PARTS || [];
+const IMG = {};
+let loaded = 0;
+PARTS.forEach(p => {
+  const im = new Image();
+  im.onload = () => { loaded++; };
+  im.src = 'assets/' + p.file;
+  IMG[p.key] = im;
+});
+const PART = {}; PARTS.forEach(p => PART[p.key] = p);
+
+// 装置配方：layers=叠加层；group=随整体旋转的层；barrel=炮管层；muzzles=炮口(原生坐标,可多个)
+const TURRETS = [
+  // 炮塔1：炮管做位移当延长炮管，且垫在主体【下方】（后画的盖住先画的）→ 底座 → 炮管(位移) → 主体
+  { id:'t1', label:'炮塔 1', layers:['base','t1_barrel','t1_body'], group:['t1_body','t1_barrel'],
+    barrel:'t1_barrel', muzzles:[[0,512]], ammo:'ammo_shell' },
+  { id:'t2', label:'炮塔 2', layers:['base','t2_body'], group:['t2_body'],
+    barrel:'t2_body', muzzles:[[-16,512],[1040,512]], ammo:'ammo_rocket' },
+  { id:'tp', label:'超时空传送装置', layers:['teleporter'], group:[], barrel:null, muzzles:[] },
+];
+let cur = 0;
+
+// 弹药目标世界宽度（原生 px）：弹体宽度 ≈ 延长炮管的末端宽度（炮管内径量级）
+const AMMO_WIDTH = 100;
+
+// 后坐（回缩/伸出）动画参数（原生 px、px/s、s）；只作用于炮管层，纯平移无形变
+const RECOIL_MAX = 120;        // 回退距离
+const RECOIL_FAST = 1500;      // 回缩快速段速度
+const RECOIL_SLOW_ZONE = 20;   // 末段长度：缩到距底还剩 20px 时「突然减速」
+const RECOIL_SLOW = 300;       // 回缩末段速度（末段 20px 慢速走完）
+const RECOIL_HOLD = 0.5;       // 缩到底后停留时间(s)
+const RECOIL_EXTEND = 120;     // 伸出（回位）速度：原 240 减 50%
+const BODY_RECOIL_MAX = 30;    // 非基座部分(主体等)同方向跟随位移上限：仅 30px（炮管 120px）
+
+// 每层状态
+const S = {};
+// 各层默认位移：炮塔1的炮管默认左移，作为主体的【延长炮管】（垫在主体下方）
+const LAYER_DEFAULT = { t1_barrel: { dx:-512, dy:0 } };
+PARTS.forEach(p => { const d = LAYER_DEFAULT[p.key] || {}; S[p.key] = { vis:true, op:1, dx:d.dx||0, dy:d.dy||0, rot:0, solo:false }; });
+
+const st = {
+  mode:'follow', rotmode:'group', angle:Math.PI, zoom:0.45, cell:0,
+  pivot:[512,512], mouse:{x:512,y:160}, sweepT:0, recoil:0, recoilT:0, recoilPhase:'idle', flash:0,
+  projectiles:[], solo:null
+};
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const V = cv.width;
+const cw = cv.width, ch = cv.height;
+
+function w2s(wx, wy, z){ z = z||st.zoom; return { x:(wx-512)*z + V/2, y:(wy-512)*z + V/2 }; }
+function s2w(sx, sy){ return { x:(sx - V/2)/st.zoom + 512, y:(sy - V/2)/st.zoom + 512 }; }
+
+/* ---------------- UI 构建 ---------------- */
+const tabs = document.getElementById('tabs');
+TURRETS.forEach((t,i)=>{
+  const d=document.createElement('div'); d.className='chip'+(i===cur?' sel':''); d.textContent=t.label;
+  d.onclick=()=>{ cur=i; st.projectiles=[]; buildLayers(); syncChips(); };
+  tabs.appendChild(d);
+});
+function syncChips(){
+  [...tabs.children].forEach((c,i)=>c.classList.toggle('sel', i===cur));
+}
+document.querySelectorAll('#modes .chip').forEach(c=>c.onclick=()=>{
+  st.mode=c.dataset.m; st.sweepT=0;
+  document.querySelectorAll('#modes .chip').forEach(x=>x.classList.toggle('sel',x===c));
+});
+document.querySelectorAll('#rotmode .chip').forEach(c=>c.onclick=()=>{
+  st.rotmode=c.dataset.r;
+  document.querySelectorAll('#rotmode .chip').forEach(x=>x.classList.toggle('sel',x===c));
+});
+
+const ang=document.getElementById('ang'), angv=document.getElementById('angv');
+ang.oninput=()=>{ st.angle = ang.value*Math.PI/180; angv.textContent=ang.value+'°'; };
+const zoom=document.getElementById('zoom'), zoomv=document.getElementById('zoomv');
+zoom.oninput=()=>{ st.zoom=zoom.value/100; zoomv.textContent=st.zoom.toFixed(2); };
+const cell=document.getElementById('cell'), cellv=document.getElementById('cellv');
+cell.oninput=()=>{ st.cell=+cell.value; cellv.textContent = st.cell? (st.cell+'px'):'关'; };
+const pvx=document.getElementById('pvx'), pvxv=document.getElementById('pvxv');
+const pvy=document.getElementById('pvy'), pvyv=document.getElementById('pvyv');
+pvx.oninput=()=>{ st.pivot[0]=+pvx.value; pvxv.textContent=pvx.value; };
+pvy.oninput=()=>{ st.pivot[1]=+pvy.value; pvyv.textContent=pvy.value; };
+
+let layerEls={};
+function buildLayers(){
+  const wrap=document.getElementById('layers'); wrap.innerHTML=''; layerEls={};
+  const T=TURRETS[cur];
+  T.layers.forEach(key=>{
+    const p=PART[key]; if(!p) return;
+    const el=document.createElement('div'); el.className='layer';
+    el.innerHTML =
+      `<input type="checkbox" ${S[key].vis?'checked':''} title="显示/隐藏">`+
+      `<span class="nm"><span class="dot" style="background:${(p.colors[2]||{}).hex||'#888'}"></span>${p.label}</span>`+
+      `<input type="number" step="1" value="${S[key].dx}" title="dx(px)">`+
+      `<input type="number" step="1" value="${S[key].dy}" title="dy(px)">`;
+    const [ck, , ix, iy] = el.children;
+    ck.onchange=()=>{ S[key].vis=ck.checked; };
+    ix.oninput=()=>{ S[key].dx=+ix.value; };
+    iy.oninput=()=>{ S[key].dy=+iy.value; };
+    el.onclick=(e)=>{ if(e.target.tagName==='INPUT') return;
+      st.solo = (st.solo===key)? null : key; syncSolo(); };
+    wrap.appendChild(el); layerEls[key]=el;
+  });
+  syncSolo();
+}
+function syncSolo(){
+  Object.entries(layerEls).forEach(([k,el])=>el.classList.toggle('solo', st.solo===k));
+}
+
+// 图片检查面板
+const inspect=document.getElementById('inspect');
+PARTS.forEach(p=>{
+  const el=document.createElement('div'); el.className='item'; el.dataset.key=p.key;
+  const sw = p.colors.map(c=>`<span class="sw" style="background:${c.hex}" title="${c.hex} ${c.pct}%"></span>`).join('');
+  el.innerHTML =
+    `<span class="thumb"><img src="assets/${p.file}" alt="${p.label}"></span>`+
+    `<div class="meta"><b>${p.label}</b> <span style="color:#6b7280">${p.orig}</span><br>`+
+    `尺寸 <b>${p.w}×${p.h}</b> · 覆盖 <b>${p.coverage}%</b><br>`+
+    `bbox <b>[${p.bbox.join(', ')}]</b><br>`+
+    `bbox中心 <b>(${p.bboxCenter.join(', ')})</b> · 质心 <b>(${p.centroid.join(', ')})</b><br>`+
+    `主色 ${sw}</div>`;
+  el.onclick=()=>{
+    st.solo=(st.solo===p.key)? null : p.key;
+    if(!TURRETS[cur].layers.includes(p.key)){ /* 允许 solo 非当前配方部件 */ }
+    syncSolo(); document.querySelectorAll('.item').forEach(x=>x.classList.toggle('act', x.dataset.key===st.solo));
+  };
+  inspect.appendChild(el);
+});
+
+document.getElementById('fire').onclick=doFire;
+document.getElementById('reset').onclick=doReset;
+document.getElementById('recenter').onclick=()=>{
+  const T=TURRETS[cur];
+  T.layers.forEach(k=>{ const p=PART[k]; if(!p) return;
+    S[k].dx = 512 - p.bboxCenter[0]; S[k].dy = 512 - p.bboxCenter[1]; });
+  buildLayers();
+};
+function doReset(){
+  PARTS.forEach(p=>{ const d=LAYER_DEFAULT[p.key]||{}; S[p.key]={vis:true,op:1,dx:d.dx||0,dy:d.dy||0,rot:0,solo:false}; });
+  st.pivot=[512,512]; pvx.value=512; pvy.value=512; pvxv.textContent='512'; pvyv.textContent='512';
+  st.projectiles=[]; st.solo=null; st.mode='follow';
+  document.querySelectorAll('#modes .chip').forEach((x,i)=>x.classList.toggle('sel',i===0));
+  document.querySelectorAll('#rotmode .chip').forEach((x,i)=>x.classList.toggle('sel',i===0));
+  st.rotmode='group';
+  buildLayers();
+  document.querySelectorAll('.item').forEach(x=>x.classList.remove('act'));
+}
+function doFire(){ st.recoilPhase='back'; st.recoilT=0; st.flash=1; spawnProjectiles(); }
+
+/* ---------------- 交互 ---------------- */
+cv.addEventListener('mousemove', e=>{
+  const r=cv.getBoundingClientRect();
+  st.mouse = s2w((e.clientX-r.left)*(V/r.width), (e.clientY-r.top)*(V/r.height));
+});
+cv.addEventListener('mousedown', e=>{ doFire(); });
+window.addEventListener('keydown', e=>{
+  if(e.code==='Space'){ e.preventDefault(); doFire(); }
+  if(e.key==='r'||e.key==='R'){ doReset(); }
+});
+
+/* ---------------- 动画 ---------------- */
+let last=performance.now();
+function spawnProjectiles(){
+  const T=TURRETS[cur]; if(!T.muzzles.length) return;
+  const rot = groupRotation();
+  T.muzzles.forEach(m=>{
+    const mm = [m[0]+(T.barrel?S[T.barrel].dx:0), m[1]+(T.barrel?S[T.barrel].dy:0)];
+    const wm = rotateAbout(mm, rot);
+    const dir = { x:Math.cos(aimAngle()), y:Math.sin(aimAngle()) };
+    st.projectiles.push({ x:wm[0], y:wm[1], vx:dir.x, vy:dir.y, life:120 });
+  });
+}
+function aimAngle(){
+  if(st.mode==='fixed') return st.angle;
+  if(st.mode==='sweep') return Math.PI + Math.sin(st.sweepT)*0.9;
+  return Math.atan2(st.mouse.y - st.pivot[1], st.mouse.x - st.pivot[0]);
+}
+function groupRotation(){ return aimAngle() - Math.PI; }   // 炮管默认朝左(180°)
+function rotateAbout(p, a){
+  const dx=p[0]-st.pivot[0], dy=p[1]-st.pivot[1];
+  const c=Math.cos(a), s=Math.sin(a);
+  return [ st.pivot[0] + dx*c - dy*s, st.pivot[1] + dx*s + dy*c ];
+}
+
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(st.mode==='sweep') st.sweepT += dt*1.6;
+  // 后坐动画：回缩(快速→距底20px突然减速) → 到位停留0.5s → 缓慢伸出
+  if(st.recoilPhase==='back'){
+    const v = (RECOIL_MAX - st.recoil) > RECOIL_SLOW_ZONE ? RECOIL_FAST : RECOIL_SLOW;
+    st.recoil = Math.min(RECOIL_MAX, st.recoil + v*dt);
+    if(st.recoil >= RECOIL_MAX){ st.recoilPhase='hold'; st.recoilT=0; }
+  } else if(st.recoilPhase==='hold'){
+    st.recoilT += dt;
+    if(st.recoilT >= RECOIL_HOLD) st.recoilPhase='out';
+  } else if(st.recoilPhase==='out'){
+    st.recoil = Math.max(0, st.recoil - RECOIL_EXTEND*dt);
+    if(st.recoil <= 0) st.recoilPhase='idle';
+  }
+  st.flash = Math.max(0, st.flash - dt*9);
+  st.projectiles.forEach(p=>{ p.x+=p.vx*dt*12000; p.y+=p.vy*dt*12000; p.life--; });   // 飞行速度 2400 → 12000（×5）
+  const hw = (V/2)/st.zoom;                       // 当前可见的世界半径
+  const x0 = 512-hw-400, x1 = 512+hw+400, y0 = 512-hw-400, y1 = 512+hw+400;
+  st.projectiles = st.projectiles.filter(p=>p.life>0 && p.x>=x0 && p.x<=x1 && p.y>=y0 && p.y<=y1);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+function drawLayer(key, rot, extra, alphaMul){
+  const im=IMG[key]; if(!im||!im.complete||!im.naturalWidth) return;
+  const s=S[key]; if(!s.vis) return;
+  const z=st.zoom;
+  const p = w2s(st.pivot[0], st.pivot[1], z);
+  ctx.save();
+  ctx.translate(p.x,p.y); ctx.rotate(rot); ctx.translate(-p.x,-p.y);
+  if(extra) ctx.translate(extra[0], extra[1]);   // 旋转后沿局部轴平移（后坐力）
+  ctx.globalAlpha = s.op*(alphaMul==null?1:alphaMul);
+  const bx = (s.dx-512)*z + V/2;
+  const by = (s.dy-512)*z + V/2;
+  ctx.drawImage(im, bx, by, 1024*z, 1024*z);
+  ctx.restore();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cw,ch);
+  // 背景
+  ctx.fillStyle='#141518'; ctx.fillRect(0,0,cw,ch);
+  drawGrid();
+
+  const T=TURRETS[cur];
+  const rot = groupRotation();
+  const recoilPx = st.recoil;   // 当前炮管后坐位移(原生px)，由 frame 的后坐状态机驱动：只对炮管做刚体平移
+
+  // 层序：按配方数组顺序
+  if(st.solo){
+    drawLayer(st.solo, 0, null, 1);
+  } else {
+    T.layers.forEach(key=>{
+      if(key===T.barrel && st.rotmode!=='group'){
+        // 仅炮管旋转：炮管单独按 total 角
+        drawLayer(key, rot, [recoilPx,0]);
+      } else if(T.group.includes(key)){
+        // 炮管位移=recoilPx(上限120px)；同组【非基座】层(主体等)同方向跟随，位移按比例缩到 30px
+        const grp = key===T.barrel ? recoilPx : recoilPx*(BODY_RECOIL_MAX/RECOIL_MAX);
+        drawLayer(key, rot, [grp,0]);
+      } else {
+        drawLayer(key, 0, null);
+      }
+    });
+  }
+
+  // 炮口闪光 + 弹丸
+  if(!st.solo){
+    T.muzzles.forEach(m=>{
+      const mm = [m[0]+(T.barrel?S[T.barrel].dx:0), m[1]+(T.barrel?S[T.barrel].dy:0)];
+      const wm = rotateAbout(mm, rot);
+      const sc = w2s(wm[0],wm[1]);
+      if(st.flash>0){
+        const r=(18+40*st.flash)*st.zoom*2;
+        const g=ctx.createRadialGradient(sc.x,sc.y,0,sc.x,sc.y,r);
+        g.addColorStop(0,`rgba(255,240,180,${0.9*st.flash})`);
+        g.addColorStop(0.4,`rgba(255,170,60,${0.6*st.flash})`);
+        g.addColorStop(1,'rgba(255,120,0,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sc.x,sc.y,r,0,7); ctx.fill();
+      }
+    });
+  }
+  st.projectiles.forEach(p=>{
+    const sc=w2s(p.x,p.y);
+    const ang=Math.atan2(p.vy,p.vx);
+    const im = T.ammo?IMG[T.ammo]:null;
+    if(im && im.complete && im.naturalWidth){
+      // 弹药贴图：默认弹头朝上 → 顺时针转 90° 对齐飞行方向
+      const ap = PART[T.ammo];
+      const cw = ap ? (ap.bbox[2]-ap.bbox[0]) : 33;   // 贴图内容宽度(原生px)
+      const S = (AMMO_WIDTH*128/cw) * st.zoom;         // 让弹体可见宽度≈AMMO_WIDTH(≈炮管末端宽度)
+      ctx.save(); ctx.translate(sc.x,sc.y); ctx.rotate(ang + Math.PI/2);
+      ctx.drawImage(im, -S/2, -S/2, S, S);
+      ctx.restore();
+    } else {
+      ctx.fillStyle='rgba(255,214,120,.95)';
+      ctx.beginPath(); ctx.arc(sc.x,sc.y,3.5,0,7); ctx.fill();
+    }
+    // 尾迹
+    ctx.strokeStyle='rgba(255,170,60,.45)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(sc.x,sc.y); ctx.lineTo(sc.x-p.vx*14,sc.y-p.vy*14); ctx.stroke();
+  });
+
+  // pivot / muzzle 标记
+  if(!st.solo){
+    const pv=w2s(st.pivot[0],st.pivot[1]);
+    ctx.strokeStyle='#22c55e'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(pv.x-9,pv.y); ctx.lineTo(pv.x+9,pv.y);
+    ctx.moveTo(pv.x,pv.y-9); ctx.lineTo(pv.x,pv.y+9); ctx.stroke();
+    ctx.beginPath(); ctx.arc(pv.x,pv.y,4,0,7); ctx.stroke();
+    const rot=groupRotation();
+    T.muzzles.forEach(m=>{ const mm=[m[0]+(T.barrel?S[T.barrel].dx:0), m[1]+(T.barrel?S[T.barrel].dy:0)]; const wm=rotateAbout(mm,rot); const sc=w2s(wm[0],wm[1]);
+      ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.arc(sc.x,sc.y,3.5,0,7); ctx.fill(); });
+  }
+
+  // HUD
+  const angDeg = ((rot*180/Math.PI)+180).toFixed(1);
+  document.getElementById('hud').innerHTML =
+    `<b>${T.label}</b> · 部件 ${T.layers.length}<br>`+
+    `炮口指向 <b>${angDeg}°</b> · pivot (${st.pivot[0]}, ${st.pivot[1]})<br>`+
+    `缩放 ${st.zoom.toFixed(2)} · ${st.solo?('单层查看: '+PART[st.solo].label):'组合'}`;
+}
+
+function drawGrid(){
+  if(st.cell>0){
+    const z=st.zoom, step=st.cell*z;
+    const off=(512%st.cell)*z;
+    ctx.strokeStyle='rgba(96,165,250,.18)'; ctx.lineWidth=1;
+    for(let x=V/2 - (V/2-off)%step; x<=V; x+=step){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,V); ctx.stroke(); }
+    for(let y=V/2 - (V/2-off)%step; y<=V; y+=step){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(V,y); ctx.stroke(); }
+  }
+  // 中心参考
+  ctx.strokeStyle='rgba(255,255,255,.06)';
+  ctx.beginPath(); ctx.moveTo(V/2,0); ctx.lineTo(V/2,V); ctx.moveTo(0,V/2); ctx.lineTo(V,V/2); ctx.stroke();
+}
+
+/* 警告：主体贴图触边 */
+window.addEventListener('load', ()=>{
+  const warn=document.getElementById('warn');
+  const tips=[];
+  PARTS.forEach(p=>{ if(p.w===1024 && (p.bbox[0]===0||p.bbox[2]===p.w-1||p.bbox[1]===0||p.bbox[3]===p.h-1))
+    tips.push(`${p.label}: 内容触及画布边缘 bbox=[${p.bbox.join(', ')}]，旋转时可能出现切边`); });
+  if(tips.length){ warn.style.display='block'; warn.textContent='⚠ '+tips.join('；'); }
+});
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>

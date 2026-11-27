@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- External GCF Reference Rig Definition for RA3 Stingray (Therapy Shock Vessel) -->
+  <!-- Stored outside Kiiro Bum Meals Off Expanded per offline preview workflow -->
+  <GiantCreatureFramework.GiantRigDef>
+    <defName>KiiroBum_Rig_Stingray</defName>
+    <label>RA3 stingray amphibious therapy vessel rig</label>
+    <painImmune>true</painImmune>
+    <onlyDieWhenCoreDestroyed>true</onlyDieWhenCoreDestroyed>
+    <useCoupledSagittalKinematics>true</useCoupledSagittalKinematics>
+    <turnSpeedDegPerTick>2.60</turnSpeedDegPerTick>
+    <walkCycleDistance>1.20</walkCycleDistance>
+    <runCycleDistance>1.60</runCycleDistance>
+    <turnCycleAngleDeg>24</turnCycleAngleDeg>
+    <portraitScaleFactor>0.34</portraitScaleFactor>
+
+    <idleAnim>KiiroBum_Anim_Stingray_01_Land_Idle</idleAnim>
+    <walkAnim>KiiroBum_Anim_Stingray_02_Land_Walk</walkAnim>
+    <runAnim>KiiroBum_Anim_Stingray_03_Land_Run</runAnim>
+    <turnLeftAnim>KiiroBum_Anim_Stingray_04_Land_TurnInPlace</turnLeftAnim>
+    <turnRightAnim>KiiroBum_Anim_Stingray_04_Land_TurnInPlace</turnRightAnim>
+    <rangedAttackAnim>KiiroBum_Anim_Stingray_09_Attack_TwinTesla</rangedAttackAnim>
+    <abilityAnims>
+      <li>KiiroBum_Anim_Stingray_05_Morph_LandToWater</li>
+      <li>KiiroBum_Anim_Stingray_08_Morph_WaterToLand</li>
+      <li>KiiroBum_Anim_Stingray_10_Skill_ChronoTeleport</li>
+      <li>KiiroBum_Anim_Stingray_11_Skill_TherapyShock</li>
+      <li>KiiroBum_Anim_Stingray_12_Skill_TeslaOverload</li>
+    </abilityAnims>
+    <downedAnim>KiiroBum_Anim_Stingray_Downed</downedAnim>
+    <deathAnim>KiiroBum_Anim_Stingray_13_Mech_Hit_Downed_Death</deathAnim>
+
+    <weaponEmitters>
+      <li>
+        <emitterId>twin_tesla_coils</emitterId>
+        <fireMode>AlternatingOrSimultaneous</fireMode>
+        <replaceVanillaMuzzleFlash>true</replaceVanillaMuzzleFlash>
+        <spawnMuzzleVfxOnLaunch>true</spawnMuzzleVfxOnLaunch>
+        <vfxPresetOverride>PlasmaBurst</vfxPresetOverride>
+        <vfxScale>1.05</vfxScale>
+        <vfxColor>(0.24, 0.95, 1.0, 0.95)</vfxColor>
+        <barrels>
+          <li><boneId>tesla_coil_left</boneId></li>
+          <li><boneId>tesla_coil_right</boneId></li>
+        </barrels>
+      </li>
+    </weaponEmitters>
+
+    <aquaticLocomotion>
+      <aquaticMode>Amphibious</aquaticMode>
+      <canTraverseShallowWater>true</canTraverseShallowWater>
+      <canTraverseChestDeepWater>true</canTraverseChestDeepWater>
+      <canTraverseDeepWater>true</canTraverseDeepWater>
+      <canTraverseOceanWater>true</canTraverseOceanWater>
+      <canTraverseRivers>true</canTraverseRivers>
+      <canTraverseMarsh>true</canTraverseMarsh>
+      <waterSpeedMultiplier>1.35</waterSpeedMultiplier>
+      <landSpeedMultiplier>1.00</landSpeedMultiplier>
+      <swimIdleAnim>KiiroBum_Anim_Stingray_06_Water_Idle</swimIdleAnim>
+      <swimAnim>KiiroBum_Anim_Stingray_07_Water_Cruise</swimAnim>
+      <swimFastAnim>KiiroBum_Anim_Stingray_07_Water_Cruise</swimFastAnim>
+      <swimCycleDistance>2.20</swimCycleDistance>
+      <buoyancyBobAmplitude>0.042</buoyancyBobAmplitude>
+      <buoyancyBobPeriodTicks>96</buoyancyBobPeriodTicks>
+      <spawnWaterWakeVfx>true</spawnWaterWakeVfx>
+      <wakeScale>1.15</wakeScale>
+      <wakeIntervalTicks>8</wakeIntervalTicks>
+      <suppressGroundDustInWater>true</suppressGroundDustInWater>
+    </aquaticLocomotion>
+
+    <steering>
+      <enabled>true</enabled>
+      <lookChains>
+        <li>
+          <chainId>arm_left_aim</chainId>
+          <boneIds><li>arm_left_upper</li><li>tesla_coil_left</li></boneIds>
+          <weights><li>0.30</li><li>0.70</li></weights>
+          <maxChainAngleDeg>125</maxChainAngleDeg>
+          <maxBoneAngleDeg>95</maxBoneAngleDeg>
+          <turnSpeedDegPerTick>8.5</turnSpeedDegPerTick>
+          <responsiveness>0.34</responsiveness>
+          <combatTargetWeight>1.0</combatTargetWeight>
+          <distalErrorCompensation>1.0</distalErrorCompensation>
+        </li>
+        <li>
+          <chainId>arm_right_aim</chainId>
+          <boneIds><li>arm_right_upper</li><li>tesla_coil_right</li></boneIds>
+          <weights><li>0.30</li><li>0.70</li></weights>
+          <maxChainAngleDeg>125</maxChainAngleDeg>
+          <maxBoneAngleDeg>95</maxBoneAngleDeg>
+          <turnSpeedDegPerTick>8.5</turnSpeedDegPerTick>
+          <responsiveness>0.34</responsiveness>
+          <combatTargetWeight>1.0</combatTargetWeight>
+          <distalErrorCompensation>1.0</distalErrorCompensation>
+        </li>
+      </lookChains>
+    </steering>
+
+    <nodes>
+      <li>
+        <nodeId>hull_main</nodeId>
+        <label>Stingray Armored Boat Hull</label>
+        <texPath>Things/Pawn/Mechanoid/Stingray/HullMain</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/HullMain_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>1024</textureResolution>
+        <drawSize>(3.6, 3.6)</drawSize>
+        <pivotPixel>(512, 512)</pivotPixel>
+        <baseAngle>0.0</baseAngle>
+        <layerOffset>0.0</layerOffset>
+        <isAquaticPropulsionPart>true</isAquaticPropulsionPart>
+        <hideWhenMissing>false</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>turret_dome</nodeId>
+        <label>Central Tesla Capacitor Dome</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/TurretDome</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/TurretDome_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 256)</pivotPixel>
+        <parentSocketPixel>(512, 622)</parentSocketPixel>
+        <baseAngle>0.0</baseAngle>
+        <layerOffset>2.0</layerOffset>
+        <isReactorCoreBone>true</isReactorCoreBone>
+        <lethalWhenDestroyed>true</lethalWhenDestroyed>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>arm_left_upper</nodeId>
+        <label>Port Articulated Conduit Arm</label>
+        <parentId>turret_dome</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/ArmUpperLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/ArmUpperLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 336)</pivotPixel>
+        <parentSocketPixel>(158, 256)</parentSocketPixel>
+        <baseAngle>-72.0</baseAngle>
+        <layerOffset>3.0</layerOffset>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>arm_right_upper</nodeId>
+        <label>Starboard Articulated Conduit Arm</label>
+        <parentId>turret_dome</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/ArmUpperRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/ArmUpperRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 336)</pivotPixel>
+        <parentSocketPixel>(354, 256)</parentSocketPixel>
+        <baseAngle>72.0</baseAngle>
+        <layerOffset>3.0</layerOffset>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>tesla_coil_left</nodeId>
+        <label>Port Coaxial Tesla Arm Turret</label>
+        <parentId>arm_left_upper</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/TeslaPodLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/TeslaPodLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 362)</pivotPixel>
+        <parentSocketPixel>(256, 212)</parentSocketPixel>
+        <muzzlePixel>(256, 72)</muzzlePixel>
+        <baseAngle>72.0</baseAngle>
+        <layerOffset>4.0</layerOffset>
+        <isTurret>true</isTurret>
+        <maxTurretAimAngleDeg>125.0</maxTurretAimAngleDeg>
+        <turretRecoil>
+          <distanceCells>0.11</distanceCells>
+          <kickTicks>2</kickTicks>
+          <recoveryTicks>10</recoveryTicks>
+        </turretRecoil>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>tesla_coil_right</nodeId>
+        <label>Starboard Coaxial Tesla Arm Turret</label>
+        <parentId>arm_right_upper</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/TeslaPodRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/TeslaPodRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 362)</pivotPixel>
+        <parentSocketPixel>(256, 212)</parentSocketPixel>
+        <muzzlePixel>(256, 72)</muzzlePixel>
+        <baseAngle>-72.0</baseAngle>
+        <layerOffset>4.0</layerOffset>
+        <isTurret>true</isTurret>
+        <maxTurretAimAngleDeg>125.0</maxTurretAimAngleDeg>
+        <turretRecoil>
+          <distanceCells>0.11</distanceCells>
+          <kickTicks>2</kickTicks>
+          <recoveryTicks>10</recoveryTicks>
+        </turretRecoil>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_fl_femur</nodeId>
+        <label>Front-Left Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(384, 330)</parentSocketPixel>
+        <baseAngle>-45.0</baseAngle>
+        <layerOffset>-5.0</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_fl_tibia</nodeId>
+        <label>Front-Left Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_fl_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>4.0</baseAngle>
+        <layerOffset>-3.5</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_fr_femur</nodeId>
+        <label>Front-Right Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(640, 330)</parentSocketPixel>
+        <baseAngle>45.0</baseAngle>
+        <layerOffset>-5.0</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_fr_tibia</nodeId>
+        <label>Front-Right Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_fr_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>-4.0</baseAngle>
+        <layerOffset>-3.5</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_ml_femur</nodeId>
+        <label>Mid-Left Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(316, 464)</parentSocketPixel>
+        <baseAngle>-86.0</baseAngle>
+        <layerOffset>-5.2</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_ml_tibia</nodeId>
+        <label>Mid-Left Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_ml_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>-16.0</baseAngle>
+        <layerOffset>-3.7</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_mr_femur</nodeId>
+        <label>Mid-Right Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(708, 464)</parentSocketPixel>
+        <baseAngle>86.0</baseAngle>
+        <layerOffset>-5.2</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_mr_tibia</nodeId>
+        <label>Mid-Right Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_mr_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>16.0</baseAngle>
+        <layerOffset>-3.7</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_rl_femur</nodeId>
+        <label>Rear-Left Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(388, 650)</parentSocketPixel>
+        <baseAngle>-134.0</baseAngle>
+        <layerOffset>-5.4</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_rl_tibia</nodeId>
+        <label>Rear-Left Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_rl_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootLeft_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>-4.0</baseAngle>
+        <layerOffset>-3.9</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>-1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_rr_femur</nodeId>
+        <label>Rear-Right Femur Strut</label>
+        <parentId>hull_main</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegFemurRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 376)</pivotPixel>
+        <parentSocketPixel>(636, 650)</parentSocketPixel>
+        <baseAngle>134.0</baseAngle>
+        <layerOffset>-5.4</layerOffset>
+        <sagittalDropCells>0.24</sagittalDropCells>
+        <isCoronalFlapHinge>true</isCoronalFlapHinge>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+      <li>
+        <nodeId>leg_rr_tibia</nodeId>
+        <label>Rear-Right Hazard Tibia &amp; Faceted Mech Foot</label>
+        <parentId>leg_rr_femur</parentId>
+        <texPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight</texPath>
+        <glowTexPath>Things/Pawn/Mechanoid/Stingray/LegTibiaFootRight_Glow</glowTexPath>
+        <glowLayerOffset>0.05</glowLayerOffset>
+        <textureResolution>512</textureResolution>
+        <drawSize>(1.8, 1.8)</drawSize>
+        <pivotPixel>(256, 384)</pivotPixel>
+        <parentSocketPixel>(256, 180)</parentSocketPixel>
+        <baseAngle>4.0</baseAngle>
+        <layerOffset>-3.9</layerOffset>
+        <sagittalDropCells>0.36</sagittalDropCells>
+        <isLocomotionDrivePart>true</isLocomotionDrivePart>
+        <locomotionSideSign>1.0</locomotionSideSign>
+        <hideWhenMissing>true</hideWhenMissing>
+      </li>
+    </nodes>
+  </GiantCreatureFramework.GiantRigDef>
+</Defs>

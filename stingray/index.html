@@ -1,0 +1,4582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RA3 Stingray / 炼铜癖治疗器 - GCF Offline Animation Studio &amp; Amphibious Sandbox</title>
+<style>
+  :root {
+    --bg-deep: #0b0e17;
+    --bg-panel: #121726;
+    --bg-panel-alt: #181f33;
+    --bg-card: #1d2640;
+    --bg-card-hover: #253154;
+    --border-dim: #2a3556;
+    --border-bright: #3cf2ff;
+    --navy-armor: #2d355e;
+    --cyan-glow: #3cf2ff;
+    --cyan-soft: rgba(60, 242, 255, 0.16);
+    --hazard-yellow: #e5ce28;
+    --danger-red: #ff5666;
+    --ok-green: #42e896;
+    --text-main: #e6eef8;
+    --text-muted: #8e9cb8;
+    --text-dim: #5d6b89;
+    --font-ui: "Microsoft YaHei UI", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-deep);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 13px;
+  }
+
+  /* Top Header */
+  .topbar {
+    height: 50px;
+    background: linear-gradient(90deg, #0e1322 0%, #17203a 55%, #0e1322 100%);
+    border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--cyan-glow);
+    background: radial-gradient(circle at 50% 50%, rgba(60,242,255,0.35), rgba(45,53,94,0.9));
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 0 10px rgba(60, 242, 255, 0.35);
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1.5px solid #a8fbff;
+    transform: rotate(45deg);
+  }
+
+  .brand-title {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+    color: #f2f7ff;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: var(--cyan-glow);
+    font-family: var(--font-mono);
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 6px;
+    background: #0b0e18;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--border-dim);
+  }
+
+  .mode-tab {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.14s ease;
+  }
+  .mode-tab:hover {
+    color: var(--text-main);
+    background: rgba(60, 242, 255, 0.07);
+  }
+  .mode-tab.active {
+    background: linear-gradient(180deg, #24335c 0%, #192444 100%);
+    color: var(--cyan-glow);
+    border-color: rgba(60, 242, 255, 0.65);
+    box-shadow: 0 0 12px rgba(60, 242, 255, 0.18);
+  }
+
+  .status-pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background: rgba(20, 30, 52, 0.9);
+    border: 1px solid var(--border-dim);
+    color: var(--ok-green);
+    white-space: nowrap;
+  }
+  .status-pill.warn {
+    color: var(--hazard-yellow);
+    border-color: var(--hazard-yellow);
+  }
+
+  /* Main 3-Column Layout */
+  .workspace {
+    display: grid;
+    grid-template-columns: 296px 1fr 336px;
+    height: calc(100vh - 50px);
+    width: 100vw;
+  }
+
+  .side-panel {
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .side-panel.right {
+    border-right: none;
+    border-left: 1px solid var(--border-dim);
+  }
+
+  .panel-section {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--cyan-glow);
+    margin-bottom: 9px;
+  }
+
+  /* Clip List */
+  .clip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .clip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 10px;
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-dim);
+    border-left: 3px solid #3a4875;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .clip-item:hover {
+    background: var(--bg-card-hover);
+    border-color: #4a5d96;
+  }
+  .clip-item.active {
+    background: linear-gradient(90deg, rgba(60,242,255,0.16) 0%, rgba(29,38,64,0.95) 100%);
+    border-color: var(--cyan-glow);
+    border-left: 3px solid var(--cyan-glow);
+  }
+
+  .clip-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .clip-code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan-glow);
+  }
+
+  .clip-badges {
+    display: flex;
+    gap: 4px;
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.07);
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .badge.water { color: #5ad8ff; border-color: rgba(90,216,255,0.4); background: rgba(20,90,140,0.3); }
+  .badge.land { color: #9be570; border-color: rgba(155,229,112,0.35); background: rgba(50,95,35,0.3); }
+  .badge.morph { color: #f6c844; border-color: rgba(246,200,68,0.45); background: rgba(110,82,15,0.35); }
+  .badge.skill { color: #d59bff; border-color: rgba(213,155,255,0.45); background: rgba(85,35,125,0.35); }
+  .badge.dmg { color: #ff7885; border-color: rgba(255,120,133,0.45); background: rgba(120,25,38,0.35); }
+
+  .clip-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+  .clip-sub {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* Center Viewport */
+  .center-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #090d16;
+    overflow: hidden;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  #mainCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+  }
+
+  /* Viewport HUD Overlays */
+  .hud-top-left {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 460px;
+  }
+
+  .hud-box {
+    background: rgba(11, 15, 26, 0.84);
+    border: 1px solid rgba(60, 242, 255, 0.35);
+    border-left: 3px solid var(--cyan-glow);
+    padding: 8px 12px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+
+  .hud-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 3px;
+  }
+
+  .hud-desc {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+
+  .hud-telemetry {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9beeff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+  }
+
+  .hud-top-right {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+  }
+
+  /* RimWorld Drafted Gizmo Bar (Sandbox) */
+  .gizmo-bar {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(13, 17, 28, 0.92);
+    border: 1.5px solid #455682;
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+  }
+
+  .gizmo-btn {
+    width: 96px;
+    height: 76px;
+    background: linear-gradient(180deg, #212c4a 0%, #151c30 100%);
+    border: 1.5px solid #4d6194;
+    border-radius: 4px;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 5px;
+    position: relative;
+    transition: all 0.12s ease;
+    text-align: center;
+  }
+  .gizmo-btn:hover:not(.disabled) {
+    border-color: var(--cyan-glow);
+    background: linear-gradient(180deg, #2a3a63 0%, #1b2644 100%);
+    box-shadow: 0 0 12px rgba(60, 242, 255, 0.25);
+  }
+  .gizmo-btn.active {
+    border-color: var(--hazard-yellow);
+    box-shadow: 0 0 14px rgba(229, 206, 40, 0.45);
+  }
+  .gizmo-btn.disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    border-color: #32394f;
+    filter: grayscale(0.7);
+  }
+
+  .gizmo-key {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--hazard-yellow);
+  }
+
+  .gizmo-svg {
+    width: 28px;
+    height: 28px;
+    margin-top: 6px;
+  }
+
+  .gizmo-label {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #eef5ff;
+  }
+  .gizmo-sub {
+    font-size: 9.5px;
+    color: var(--text-muted);
+  }
+
+  /* Inspector Transport Timeline Bar */
+  .transport-bar {
+    height: 84px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-dim);
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .transport-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .btn-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-dim);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    transition: all 0.12s ease;
+  }
+  .btn:hover {
+    border-color: var(--cyan-glow);
+    background: var(--bg-card-hover);
+  }
+  .btn.active, .btn.primary {
+    background: rgba(60, 242, 255, 0.18);
+    color: var(--cyan-glow);
+    border-color: var(--cyan-glow);
+  }
+
+  .scrub-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #232d4b;
+    border-radius: 3px;
+    outline: none;
+    border: 1px solid #33426d;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--cyan-glow);
+    border: 2px solid #0b0e17;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(60, 242, 255, 0.8);
+  }
+
+  .tick-readout {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--cyan-glow);
+    min-width: 155px;
+    text-align: right;
+  }
+
+  /* Right Controls */
+  .control-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .control-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .control-val {
+    font-family: var(--font-mono);
+    color: var(--cyan-glow);
+  }
+
+  .compass-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-main);
+    cursor: pointer;
+  }
+  .check-row input[type="checkbox"] {
+    accent-color: var(--cyan-glow);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .contract-box {
+    background: #0e1424;
+    border: 1px solid #354775;
+    border-left: 3px solid var(--hazard-yellow);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #e8eefc;
+    user-select: text;
+  }
+  .contract-stage-title {
+    font-weight: 700;
+    color: var(--hazard-yellow);
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+  }
+
+  /* Layer Stack List */
+  .layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 270px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .layer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 7px;
+    background: var(--bg-panel-alt);
+    border: 1px solid #242f4d;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+  }
+  .layer-row.hull {
+    border-color: var(--cyan-glow);
+    background: rgba(60, 242, 255, 0.1);
+  }
+  .layer-row.leg {
+    color: #9fb2d9;
+  }
+
+  /* Sandbox Cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .stat-cell {
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 6px 8px;
+  }
+  .stat-k {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .stat-v {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-top: 2px;
+  }
+
+  .pawn-card {
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: border-color 0.12s;
+  }
+  .pawn-card:hover, .pawn-card.selected {
+    border-color: var(--cyan-glow);
+  }
+  .pawn-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .hediff-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 3px;
+    margin-right: 4px;
+    font-weight: 600;
+  }
+  .hediff-shock { background: rgba(255, 86, 102, 0.22); border: 1px solid #ff5666; color: #ff9aa4; }
+  .hediff-contract { background: rgba(229, 206, 40, 0.18); border: 1px solid #e5ce28; color: #f7e665; }
+  .hediff-after { background: rgba(60, 242, 255, 0.15); border: 1px solid #3cf2ff; color: #9df7ff; }
+
+  .event-log {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    background: #0b0f1b;
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 7px;
+    height: 165px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .log-entry {
+    color: #b9c8e4;
+    line-height: 1.35;
+    border-bottom: 1px dashed rgba(255,255,255,0.06);
+    padding-bottom: 3px;
+  }
+  .log-entry span.t { color: var(--cyan-glow); margin-right: 5px; }
+
+  .hidden {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-title">RA3 STINGRAY // 炼铜癖治疗器 — 离线骨骼动画与两栖实机预览工作台</div>
+        <div class="brand-sub">GCF 2-Bone Analytical IK + Zero-Slip Hexapod Gait + Support Polygon + Coronal Tuck + Dual Turret Solver</div>
+      </div>
+    </div>
+
+    <div class="mode-tabs">
+      <button id="tabInspector" class="mode-tab active" onclick="Studio.setMode('inspector')">[01] 动画检视台 / CLIP INSPECTOR (13)</button>
+      <button id="tabSandbox" class="mode-tab" onclick="Studio.setMode('sandbox')">[02] 水陆两栖实机沙盒 / AMPHIBIOUS SANDBOX</button>
+    </div>
+
+    <div id="assetStatusPill" class="status-pill">LOADING TEXTURES_BUNDLE.JS...</div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="workspace">
+
+    <!-- LEFT PANEL -->
+    <aside class="side-panel" id="leftPanel">
+      <!-- Inspector Left: 13 Clips -->
+      <div id="inspectorLeft">
+        <div class="panel-section" style="padding-bottom:6px;">
+          <div class="section-header">
+            <span>全部 13 组载具兼机械体动画</span>
+            <span id="clipCountLabel">13 CLIPS</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted);">点击切换片段；支持 GCF 跨片段平滑混合过渡与 0-360 度全向检视。</div>
+        </div>
+        <div id="clipListContainer" class="clip-list"></div>
+      </div>
+
+      <!-- Sandbox Left: Unit Telemetry & Controls -->
+      <div id="sandboxLeft" class="hidden">
+        <div class="panel-section">
+          <div class="section-header">
+            <span>机械体档案 / MECHANOID SPEC</span>
+            <span style="color:var(--ok-green);">DRAFTED</span>
+          </div>
+          <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:4px;">炼铜癖治疗器 (RA3 磁暴快艇)</div>
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.45; margin-bottom:10px;" id="unitLoreDesc"></div>
+          <div class="stat-grid">
+            <div class="stat-cell">
+              <div class="stat-k">市场售价 (繁荣集市)</div>
+              <div class="stat-v" style="color:var(--hazard-yellow);">15,000 白银</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-k">机械带宽消耗</div>
+              <div class="stat-v">1 Bandwidth</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-k">无线远程供电</div>
+              <div class="stat-v" style="color:var(--cyan-glow);">100% 恒满免充</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-k">当前水陆姿态</div>
+              <div class="stat-v" id="sbPoseBadge">陆地六足模式</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-k">车体朝向 / 航速</div>
+              <div class="stat-v" id="sbSpeedBadge">0 deg | 0.0 c/s</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-k">连通水域鱼群存量</div>
+              <div class="stat-v" id="sbFishBadge" style="color:#6ce5ff;">18 / 18 尾</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-header"><span>实机沙盒操控说明 / CONTROLS</span></div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:11.5px; color:var(--text-muted); line-height:1.45;">
+            <div><strong style="color:var(--cyan-glow);">[W/A/S/D]</strong> 或 <strong style="color:var(--cyan-glow);">[鼠标右键点击地面/水面]</strong>：驾驶快艇移动，进出池塘岸线自动触发六足折叠收纳与上岸展开变形（按住 Shift 陆地疾奔）。</div>
+            <div><strong style="color:var(--cyan-glow);">[鼠标移动 + 左键按住]</strong>：上方一对机械臂特斯拉炮塔独立索敌瞄准光标，持续发射双联蓝白高压电浆电弧并触发液压后坐力。</div>
+            <div><strong style="color:var(--hazard-yellow);">[按键 1] 远程传送协议</strong>：点击任意陆地或水面格，蓝白超时空网格闪现瞬移并自动适配落点水陆姿态。</div>
+            <div><strong style="color:var(--hazard-yellow);">[按键 2] 炼铜癖治疗器</strong>：选定任意人形假人持续高压电疗，强制 Stun 慢速旋转抖动，结算五阶段【无慰契约】。</div>
+            <div><strong style="color:var(--hazard-yellow);">[按键 3] 磁暴超载模式</strong>：仅船体位于水中时点亮；全水域放电清空池塘鱼群抛向岸边，水中人形触发治疗契约，水中动物触发【触电了】与 2H【刚刚被电了】。</div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-header"><span>岸边渔获统计 / SHORE CATCH</span></div>
+          <div id="shoreCatchSummary" style="font-family:var(--font-mono); font-size:11px; color:var(--text-main); line-height:1.6;">
+            尚未电鱼（驶入右侧池塘后按 [3] 触发磁暴超载电鱼）
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER VIEWPORT -->
+    <main class="center-stage">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="mainCanvas"></canvas>
+
+        <!-- Top-Left HUD -->
+        <div class="hud-top-left">
+          <div class="hud-box">
+            <div class="hud-title" id="hudTitle">01_Land_Idle — 陆地六足待机</div>
+            <div class="hud-desc" id="hudDesc">六足机械蜘蛛驻留姿态，船体液压微幅呼吸起伏，中央磁暴圆顶脉冲发光，双机械臂特斯拉线圈警戒扫视。</div>
+            <div class="hud-telemetry" id="hudTelemetry">
+              <span>HEADING: 0.0 deg</span>
+              <span>MODE: LAND (6-LEG)</span>
+              <span>LEAKED LEG PX: 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top-Right View Camera Buttons -->
+        <div class="hud-top-right">
+          <button class="btn active" id="btnPhysicsToggle" onclick="Studio.togglePhysicsOverlay()">物理支撑面: ON</button>
+          <button class="btn" onclick="Studio.resetCamera()">重置视角 / Reset Zoom</button>
+          <button class="btn" id="btnGridToggle" onclick="Studio.toggleGrid()">网格: ON</button>
+        </div>
+
+        <!-- Sandbox RimWorld Gizmo Bar -->
+        <div id="sandboxGizmoBar" class="gizmo-bar hidden">
+          <button class="gizmo-btn" id="gizmoMorph" onclick="Studio.manualToggleMorph()" title="手动预览水陆折叠/展开变形 (快捷键 M)">
+            <span class="gizmo-key">M</span>
+            <svg class="gizmo-svg" viewBox="0 0 32 32" fill="none" stroke="#3cf2ff" stroke-width="2">
+              <path d="M6 20 L16 8 L26 20 Z"/>
+              <path d="M4 25 Q16 21 28 25" stroke="#e5ce28"/>
+            </svg>
+            <div class="gizmo-label">水陆变形</div>
+            <div class="gizmo-sub" id="gizmoMorphSub">自动/手动</div>
+          </button>
+
+          <button class="gizmo-btn" id="gizmoSkill1" onclick="Studio.armSkill(1)" title="技能1【远程传送协议】：超时空传送到任意选择的陆地或水面位置">
+            <span class="gizmo-key">1</span>
+            <svg class="gizmo-svg" viewBox="0 0 32 32" fill="none" stroke="#6ce5ff" stroke-width="2">
+              <circle cx="16" cy="16" r="10"/>
+              <ellipse cx="16" cy="16" rx="10" ry="4"/>
+              <ellipse cx="16" cy="16" rx="4" ry="10"/>
+            </svg>
+            <div class="gizmo-label">远程传送协议</div>
+            <div class="gizmo-sub">超时空瞬移</div>
+          </button>
+
+          <button class="gizmo-btn" id="gizmoSkill2" onclick="Studio.armSkill(2)" title="技能2【炼铜癖治疗器】：对殖民者/人形持续释放治疗电弧并签署五阶无慰契约">
+            <span class="gizmo-key">2</span>
+            <svg class="gizmo-svg" viewBox="0 0 32 32" fill="none" stroke="#e5ce28" stroke-width="2.2">
+              <polyline points="18,4 9,17 16,17 13,28 23,14 16,14 18,4"/>
+            </svg>
+            <div class="gizmo-label">炼铜癖治疗器</div>
+            <div class="gizmo-sub">单体电疗契约</div>
+          </button>
+
+          <button class="gizmo-btn disabled" id="gizmoSkill3" onclick="Studio.armSkill(3)" title="技能3【磁暴超载模式】：仅船体模式（位于水中）可用，全水域电鱼并电击水中生物">
+            <span class="gizmo-key">3</span>
+            <svg class="gizmo-svg" viewBox="0 0 32 32" fill="none" stroke="#3cf2ff" stroke-width="2">
+              <circle cx="16" cy="16" r="4" fill="#3cf2ff"/>
+              <circle cx="16" cy="16" r="9" stroke-dasharray="3 2"/>
+              <circle cx="16" cy="16" r="13" stroke="#e5ce28" stroke-dasharray="4 3"/>
+            </svg>
+            <div class="gizmo-label">磁暴超载模式</div>
+            <div class="gizmo-sub" id="gizmoSkill3Sub">需进入水域</div>
+          </button>
+
+          <button class="gizmo-btn" onclick="Studio.resetSandboxPond()" title="补充池塘鱼群并重置所有测试假人位置">
+            <span class="gizmo-key">R</span>
+            <svg class="gizmo-svg" viewBox="0 0 32 32" fill="none" stroke="#9be570" stroke-width="2">
+              <path d="M7 16 A9 9 0 1 1 10 23"/>
+              <polyline points="6,23 10,23 10,19"/>
+            </svg>
+            <div class="gizmo-label">重置水域鱼群</div>
+            <div class="gizmo-sub">恢复 18 尾鱼</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Transport Bar (Inspector Mode Only) -->
+      <div id="inspectorTransport" class="transport-bar">
+        <div class="transport-controls">
+          <div class="btn-group">
+            <button id="btnPlayPause" class="btn primary" onclick="Studio.togglePlay()">PAUSE [Space]</button>
+            <button class="btn" onclick="Studio.stepTicks(-1)" title="上一帧 [-1 Tick]">&lt; -1T</button>
+            <button class="btn" onclick="Studio.stepTicks(1)" title="下一帧 [+1 Tick]">+1T &gt;</button>
+            <button class="btn" onclick="Studio.restartClip()">RESTART</button>
+          </div>
+
+          <div class="btn-group">
+            <span style="font-size:11px; color:var(--text-muted); margin-right:4px;">SPEED:</span>
+            <button class="btn speed-btn" data-spd="0.25" onclick="Studio.setSpeed(0.25)">0.25x</button>
+            <button class="btn speed-btn" data-spd="0.5" onclick="Studio.setSpeed(0.5)">0.5x</button>
+            <button class="btn speed-btn active" data-spd="1" onclick="Studio.setSpeed(1)">1.0x</button>
+            <button class="btn speed-btn" data-spd="1.5" onclick="Studio.setSpeed(1.5)">1.5x</button>
+            <button class="btn speed-btn" data-spd="2" onclick="Studio.setSpeed(2)">2.0x</button>
+          </div>
+        </div>
+
+        <div class="scrub-row">
+          <input type="range" id="timelineSlider" min="0" max="90" step="0.25" value="0" oninput="Studio.onScrubInput(this.value)">
+          <div class="tick-readout" id="tickReadout">TICK 00.0 / 90 (0%)</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="side-panel right" id="rightPanel">
+      <!-- Inspector Right Controls -->
+      <div id="inspectorRight">
+        <div class="panel-section">
+          <div class="section-header">
+            <span>车体全向旋转 / 360 HEADING</span>
+            <button class="btn" id="btnAutoSpin" style="padding:2px 7px; font-size:10px;" onclick="Studio.toggleAutoSpin()">AUTO SPIN: OFF</button>
+          </div>
+          <div class="control-row" style="margin-bottom:6px;">
+            <div class="control-label">
+              <span>Heading Angle (CW from North)</span>
+              <span class="control-val" id="headingValLabel">0 deg</span>
+            </div>
+            <input type="range" id="headingSlider" min="0" max="360" step="1" value="0" oninput="Studio.setHeading(this.value)">
+          </div>
+          <div class="compass-grid">
+            <button class="btn" onclick="Studio.setHeading(0)">0 N</button>
+            <button class="btn" onclick="Studio.setHeading(45)">45 NE</button>
+            <button class="btn" onclick="Studio.setHeading(90)">90 E</button>
+            <button class="btn" onclick="Studio.setHeading(135)">135 SE</button>
+            <button class="btn" onclick="Studio.setHeading(180)">180 S</button>
+            <button class="btn" onclick="Studio.setHeading(225)">225 SW</button>
+            <button class="btn" onclick="Studio.setHeading(270)">270 W</button>
+            <button class="btn" onclick="Studio.setHeading(315)">315 NW</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-header"><span>双机械臂炮塔与治疗阶段测试</span></div>
+          <label class="check-row">
+            <span>检视台内双炮塔跟随鼠标瞄准</span>
+            <input type="checkbox" id="chkInspectorCursorAim" onchange="Studio.onDebugToggle()">
+          </label>
+          <label class="check-row">
+            <span>检视台按住鼠标左键试射电弧</span>
+            <input type="checkbox" id="chkInspectorClickFire" checked onchange="Studio.onDebugToggle()">
+          </label>
+          <div class="control-row" style="margin-top:8px; margin-bottom:6px;">
+            <div class="control-label">
+              <span>【无慰契约】阶段预览 (Skill 2)</span>
+              <span class="control-val" id="contractStageLabel">AUTO CYCLE</span>
+            </div>
+            <div class="btn-group" style="flex-wrap:wrap;">
+              <button class="btn stage-btn active" data-stg="0" onclick="Studio.setContractStage(0)">轮播</button>
+              <button class="btn stage-btn" data-stg="1" onclick="Studio.setContractStage(1)">1次</button>
+              <button class="btn stage-btn" data-stg="2" onclick="Studio.setContractStage(2)">2次</button>
+              <button class="btn stage-btn" data-stg="3" onclick="Studio.setContractStage(3)">3次</button>
+              <button class="btn stage-btn" data-stg="4" onclick="Studio.setContractStage(4)">4次</button>
+              <button class="btn stage-btn" data-stg="5" onclick="Studio.setContractStage(5)">5次</button>
+            </div>
+          </div>
+          <div class="contract-box" id="inspectorContractBox">
+            <div class="contract-stage-title" id="inspectorContractTitle">【无慰契约】第 1 次治疗记录</div>
+            <div id="inspectorContractText"></div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-header"><span>GCF 骨骼与物理调试叠加层 / PHYSICS &amp; DEBUG</span></div>
+          <label class="check-row">
+            <span style="color:var(--ok-green); font-weight:700;">Physics &amp; Support Polygon (物理步态与支撑多边形)</span>
+            <input type="checkbox" id="chkShowPhysics" checked onchange="Studio.onDebugToggle()">
+          </label>
+          <label class="check-row">
+            <span>Pivots &amp; Parent Sockets (枢轴与插槽)</span>
+            <input type="checkbox" id="chkShowPivots" onchange="Studio.onDebugToggle()">
+          </label>
+          <label class="check-row">
+            <span>Turret Sector Arcs (双炮塔射界扇区)</span>
+            <input type="checkbox" id="chkShowSectors" onchange="Studio.onDebugToggle()">
+          </label>
+          <label class="check-row">
+            <span>Emissive Glow Pass (青色自发光层)</span>
+            <input type="checkbox" id="chkShowGlow" checked onchange="Studio.onDebugToggle()">
+          </label>
+          <label class="check-row">
+            <span>Clip Cross-Fade (切换动画平滑混合)</span>
+            <input type="checkbox" id="chkCrossFade" checked onchange="Studio.onDebugToggle()">
+          </label>
+        </div>
+
+        <div class="panel-section" style="border-bottom:none;">
+          <div class="section-header">
+            <span>图层栈与断肢模拟 / LAYER STACK</span>
+            <button class="btn" style="padding:2px 6px; font-size:10px;" onclick="Studio.restoreAllBones()">恢复全肢</button>
+          </div>
+          <div id="layerStackList" class="layer-list"></div>
+        </div>
+      </div>
+
+      <!-- Sandbox Right: Hediff & Combat Log -->
+      <div id="sandboxRight" class="hidden">
+        <div class="panel-section">
+          <div class="section-header">
+            <span>场内目标状态与契约检视 / TARGETS</span>
+          </div>
+          <div id="sandboxPawnCards"></div>
+        </div>
+
+        <div class="panel-section" style="border-bottom:none;">
+          <div class="section-header">
+            <span>实机战斗与电鱼日志 / EVENT LOG</span>
+            <button class="btn" style="padding:2px 6px; font-size:10px;" onclick="Studio.clearLogs()">清空</button>
+          </div>
+          <div id="sandboxEventLog" class="event-log"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Zero-CORS Base64 Texture + Rig + 13 Clips Bundle -->
+  <script src="textures_bundle.js"></script>
+
+  <script>
+  (function () {
+    "use strict";
+
+    const DEG2RAD = Math.PI / 180.0;
+    const RAD2DEG = 180.0 / Math.PI;
+
+    function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+    function clamp01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function normalizeAngle360(deg) {
+      let a = deg % 360.0;
+      if (a < 0) a += 360.0;
+      return a;
+    }
+
+    // Matches Unity Mathf.DeltaAngle(current, target) in [-180, 180]
+    function deltaAngle(current, target) {
+      let d = (target - current) % 360.0;
+      if (d > 180.0) d -= 360.0;
+      if (d < -180.0) d += 360.0;
+      return d;
+    }
+
+    // 1:1 Port of GiantCreatureFramework.BoneAnimTrack.ApplyEasing
+    function applyEasing(rawT, easing) {
+      const t = clamp01(rawT);
+      switch (easing) {
+        case "SmoothStep":
+          return t * t * (3.0 - 2.0 * t);
+        case "EaseInQuad":
+          return t * t;
+        case "EaseOutQuad":
+          return 1.0 - (1.0 - t) * (1.0 - t);
+        case "EaseInCubic":
+          return t * t * t;
+        case "EaseOutCubic": {
+          const inv = 1.0 - t;
+          return 1.0 - inv * inv * inv;
+        }
+        case "EaseOutBack": {
+          const c1 = 1.70158;
+          const c3 = c1 + 1.0;
+          const u = t - 1.0;
+          return 1.0 + c3 * u * u * u + c1 * u * u;
+        }
+        case "Sine":
+          return 0.5 - 0.5 * Math.cos(t * Math.PI);
+        case "Linear":
+        case "CatmullRom":
+        default:
+          return t;
+      }
+    }
+
+    function identityLocalPose() {
+      return { offsetX: 0, offsetY: 0, angle: 0, scaleX: 1, scaleY: 1, sagittalPitch: 0, coronalFlap: 0 };
+    }
+
+    function copyLocalPose(src) {
+      return {
+        offsetX: src.offsetX,
+        offsetY: src.offsetY,
+        angle: src.angle,
+        scaleX: src.scaleX,
+        scaleY: src.scaleY,
+        sagittalPitch: src.sagittalPitch,
+        coronalFlap: src.coronalFlap
+      };
+    }
+
+    function lerpLocalPose(a, b, rawT) {
+      const t = clamp01(rawT);
+      return {
+        offsetX: lerp(a.offsetX, b.offsetX, t),
+        offsetY: lerp(a.offsetY, b.offsetY, t),
+        angle: a.angle + deltaAngle(a.angle, b.angle) * t,
+        scaleX: lerp(a.scaleX, b.scaleX, t),
+        scaleY: lerp(a.scaleY, b.scaleY, t),
+        sagittalPitch: lerp(a.sagittalPitch, b.sagittalPitch, t),
+        coronalFlap: lerp(a.coronalFlap, b.coronalFlap, t)
+      };
+    }
+
+    function interpolateKeyframes(a, b, rawT) {
+      const t = applyEasing(rawT, b.easing || "SmoothStep");
+      return {
+        offsetX: lerp(a.offsetX || 0, b.offsetX || 0, t),
+        offsetY: lerp(a.offsetY || 0, b.offsetY || 0, t),
+        angle: (a.angle || 0) + deltaAngle(a.angle || 0, b.angle || 0) * t,
+        scaleX: lerp(a.scaleX !== undefined ? a.scaleX : 1, b.scaleX !== undefined ? b.scaleX : 1, t),
+        scaleY: lerp(a.scaleY !== undefined ? a.scaleY : 1, b.scaleY !== undefined ? b.scaleY : 1, t),
+        sagittalPitch: lerp(a.sagittalPitch || 0, b.sagittalPitch || 0, t),
+        coronalFlap: lerp(a.coronalFlap || 0, b.coronalFlap || 0, t)
+      };
+    }
+
+    // 1:1 Port of GiantCreatureFramework.BoneAnimTrack.SampleAt (including CatmullRom & loop wrap)
+    function sampleTrackAt(keyframes, tick, durationTicks, loop) {
+      if (!keyframes || keyframes.length === 0) return identityLocalPose();
+      if (keyframes.length === 1) {
+        const s = keyframes[0];
+        return {
+          offsetX: s.offsetX || 0,
+          offsetY: s.offsetY || 0,
+          angle: s.angle || 0,
+          scaleX: s.scaleX !== undefined ? s.scaleX : 1,
+          scaleY: s.scaleY !== undefined ? s.scaleY : 1,
+          sagittalPitch: s.sagittalPitch || 0,
+          coronalFlap: s.coronalFlap || 0
+        };
+      }
+
+      let t = tick;
+      if (durationTicks > 0) {
+        if (loop) {
+          t = tick % durationTicks;
+          if (t < 0) t += durationTicks;
+        } else {
+          t = clamp(tick, 0, durationTicks);
+        }
+      }
+
+      const lastIdx = keyframes.length - 1;
+      if (t <= keyframes[0].tick) {
+        if (loop && durationTicks > keyframes[lastIdx].tick && t < keyframes[0].tick) {
+          const a = keyframes[lastIdx];
+          const b = keyframes[0];
+          const span = (durationTicks - a.tick) + b.tick;
+          const elapsed = (durationTicks - a.tick) + t;
+          const frac = span > 1e-4 ? elapsed / span : 1.0;
+          return interpolateKeyframes(a, b, frac);
+        }
+        const f = keyframes[0];
+        return {
+          offsetX: f.offsetX || 0, offsetY: f.offsetY || 0, angle: f.angle || 0,
+          scaleX: f.scaleX !== undefined ? f.scaleX : 1, scaleY: f.scaleY !== undefined ? f.scaleY : 1,
+          sagittalPitch: f.sagittalPitch || 0, coronalFlap: f.coronalFlap || 0
+        };
+      }
+
+      if (t >= keyframes[lastIdx].tick) {
+        if (loop && durationTicks > keyframes[lastIdx].tick) {
+          const a = keyframes[lastIdx];
+          const b = keyframes[0];
+          const span = (durationTicks - a.tick) + b.tick;
+          const frac = span > 1e-4 ? (t - a.tick) / span : 1.0;
+          return interpolateKeyframes(a, b, frac);
+        }
+        const l = keyframes[lastIdx];
+        return {
+          offsetX: l.offsetX || 0, offsetY: l.offsetY || 0, angle: l.angle || 0,
+          scaleX: l.scaleX !== undefined ? l.scaleX : 1, scaleY: l.scaleY !== undefined ? l.scaleY : 1,
+          sagittalPitch: l.sagittalPitch || 0, coronalFlap: l.coronalFlap || 0
+        };
+      }
+
+      for (let i = 0; i < lastIdx; i++) {
+        const k0 = keyframes[i];
+        const k1 = keyframes[i + 1];
+        if (t >= k0.tick && t <= k1.tick) {
+          const span = k1.tick - k0.tick;
+          const frac = span > 1e-4 ? (t - k0.tick) / span : 1.0;
+          return interpolateKeyframes(k0, k1, frac);
+        }
+      }
+      return identityLocalPose();
+    }
+
+    // 1:1 Port of GiantCreatureFramework.TurretRecoilState
+    class TurretRecoilRuntime {
+      constructor() {
+        this.active = false;
+        this.hasPendingImpulse = false;
+        this.pendingFireWorldAngleDeg = 0;
+        this.currentDisplacementCells = 0;
+        this.startDisplacementCells = 0;
+        this.peakDisplacementCells = 0;
+        this.elapsedTicks = 0;
+        this.kickTicks = 2;
+        this.recoveryTicks = 10;
+        this.localRecoilDirX = 0;
+        this.localRecoilDirY = -1;
+      }
+
+      queueImpulse(recoilDef, fireWorldAngleDeg, scale = 1.0) {
+        if (!recoilDef || scale <= 0.001) return;
+        const addDist = (recoilDef.distanceCells || 0.16) * scale;
+        const maxCap = (recoilDef.maxAccumulatedCells || addDist * 1.35) * Math.max(1.0, scale);
+        this.startDisplacementCells = this.active ? this.currentDisplacementCells : 0;
+        this.peakDisplacementCells = Math.min(maxCap, this.startDisplacementCells + addDist);
+        this.kickTicks = clamp(recoilDef.kickTicks || 2, 0, 30);
+        this.recoveryTicks = clamp(recoilDef.recoveryTicks || 10, 1, 180);
+        this.elapsedTicks = 0;
+        this.currentDisplacementCells = this.kickTicks <= 0
+          ? this.peakDisplacementCells
+          : Math.max(this.startDisplacementCells, lerp(this.startDisplacementCells, this.peakDisplacementCells, 0.65));
+        this.pendingFireWorldAngleDeg = fireWorldAngleDeg;
+        this.hasPendingImpulse = true;
+        this.active = true;
+      }
+
+      stepAndEvaluate(deltaTicks, currentBoneWorldAngleDeg) {
+        if (!this.active) return { x: 0, y: 0 };
+        if (this.hasPendingImpulse) {
+          const dDeg = deltaAngle(currentBoneWorldAngleDeg, this.pendingFireWorldAngleDeg);
+          const rad = dDeg * DEG2RAD;
+          this.localRecoilDirX = -Math.sin(rad);
+          this.localRecoilDirY = -Math.cos(rad);
+          this.hasPendingImpulse = false;
+        }
+        if (deltaTicks > 0) {
+          this.elapsedTicks += deltaTicks;
+          if (this.kickTicks > 0 && this.elapsedTicks < this.kickTicks) {
+            const u = clamp01(this.elapsedTicks / this.kickTicks);
+            const easeOut = 1.0 - Math.pow(1.0 - u, 3);
+            this.currentDisplacementCells = Math.max(
+              this.currentDisplacementCells,
+              lerp(this.startDisplacementCells, this.peakDisplacementCells, easeOut)
+            );
+          } else {
+            const recElapsed = this.elapsedTicks - this.kickTicks;
+            if (recElapsed >= this.recoveryTicks) {
+              this.active = false;
+              this.currentDisplacementCells = 0;
+              return { x: 0, y: 0 };
+            }
+            const v = clamp01(recElapsed / this.recoveryTicks);
+            const smooth = v * v * (3.0 - 2.0 * v);
+            this.currentDisplacementCells = this.peakDisplacementCells * (1.0 - smooth);
+          }
+        }
+        return {
+          x: this.localRecoilDirX * this.currentDisplacementCells,
+          y: this.localRecoilDirY * this.currentDisplacementCells
+        };
+      }
+    }
+
+    // 1:1 Port of GiantCreatureFramework.SkeletalKinematics.SolveWorldPoses
+    function solveWorldPoses(rig, rootWorldXZ, rootHeadingDeg, localAnimPoses, missingMask, globalScale, recoilOffsets) {
+      const nodes = rig.nodes;
+      const count = nodes.length;
+      const out = new Array(count);
+
+      // Root scale from root bone keyframe (used in Chrono Teleport implosion/materialization)
+      const rootAnim = localAnimPoses[0] || identityLocalPose();
+      const effGlobalScale = globalScale * (rootAnim.scaleX !== undefined ? rootAnim.scaleX : 1.0);
+
+      const rootRad = rootHeadingDeg * DEG2RAD;
+      const rootCos = Math.cos(rootRad);
+      const rootSin = Math.sin(rootRad);
+      let hullRad = rootRad;
+      let hullCos = rootCos;
+      let hullSin = rootSin;
+
+      for (let i = 0; i < count; i++) {
+        const def = nodes[i];
+        const anim = localAnimPoses[i] || identityLocalPose();
+        const selfMissing = Boolean(missingMask && missingMask[i] && def.hideWhenMissing !== false);
+        const pIdx = def.parentRuntimeIndex;
+        const parentVisible = pIdx < 0 || out[pIdx].visible;
+        const visible = parentVisible && !selfMissing;
+
+        let ownSagForward = 0.0;
+        if ((def.sagittalDropCells || 0) > 1e-5 && Math.abs(anim.sagittalPitch || 0) > 1e-4) {
+          ownSagForward = def.sagittalDropCells * effGlobalScale * Math.sin(anim.sagittalPitch * DEG2RAD);
+        }
+
+        let jointX = 0, jointZ = 0, worldAngle = 0;
+        if (pIdx < 0) {
+          const rx = ((def.localOffsetX || 0) + (anim.offsetX || 0)) * effGlobalScale;
+          const rz = ((def.localOffsetY || 0) + (anim.offsetY || 0)) * effGlobalScale;
+          jointX = rootWorldXZ.x + (rx * rootCos + rz * rootSin);
+          jointZ = rootWorldXZ.z + (-rx * rootSin + rz * rootCos);
+          worldAngle = normalizeAngle360(rootHeadingDeg + (def.baseAngle || 0) + (anim.angle || 0));
+        } else {
+          const pPose = out[pIdx];
+          const sockU = def.resolvedParentSocketUV[0];
+          const sockV = def.resolvedParentSocketUV[1];
+          const flatSock = uvToWorldXZFlat(pPose, sockU, sockV);
+          let sx = flatSock.x;
+          let sz = flatSock.z;
+
+          if (Math.abs(def.localOffsetX || 0) > 1e-6 || Math.abs(def.localOffsetY || 0) > 1e-6) {
+            const ox = (def.localOffsetX || 0) * effGlobalScale;
+            const oz = (def.localOffsetY || 0) * effGlobalScale;
+            sx += ox * pPose.cosTheta + oz * pPose.sinTheta;
+            sz += -ox * pPose.sinTheta + oz * pPose.cosTheta;
+          }
+
+          if (rig.useCoupledSagittalKinematics) {
+            if (Math.abs(pPose.ownSagittalForwardCells) > 1e-5) {
+              sx += pPose.ownSagittalForwardCells * hullSin;
+              sz += pPose.ownSagittalForwardCells * hullCos;
+            }
+          } else if (Math.abs(ownSagForward) > 1e-5) {
+            sx += ownSagForward * hullSin;
+            sz += ownSagForward * hullCos;
+          }
+
+          jointX = sx;
+          jointZ = sz;
+          const relAngle = def.isRigid ? 0 : (anim.angle || 0);
+          worldAngle = normalizeAngle360(pPose.worldAngleDeg + (def.baseAngle || 0) + relAngle);
+        }
+
+        const pivotU = def.resolvedPivotUV[0];
+        const pivotV = def.resolvedPivotUV[1];
+        const boneScaleX = (def.baseScaleX || 1) * (pIdx < 0 ? 1 : (anim.scaleX !== undefined ? anim.scaleX : 1)) * effGlobalScale;
+        const boneScaleY = (def.baseScaleY || 1) * (pIdx < 0 ? 1 : (anim.scaleY !== undefined ? anim.scaleY : 1)) * effGlobalScale;
+        const worldW = Math.max(0.001, def.drawSize[0] * boneScaleX);
+        const worldH = Math.max(0.001, def.drawSize[1] * boneScaleY);
+
+        const rad = worldAngle * DEG2RAD;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        if (pIdx < 0) {
+          hullRad = rad;
+          hullCos = cos;
+          hullSin = sin;
+        }
+
+        if (pIdx >= 0 && recoilOffsets && recoilOffsets[i]) {
+          const rec = recoilOffsets[i];
+          if (rec.x * rec.x + rec.y * rec.y > 1e-10) {
+            const dx = rec.x * effGlobalScale;
+            const dz = rec.y * effGlobalScale;
+            jointX += dx * cos + dz * sin;
+            jointZ += -dx * sin + dz * cos;
+          }
+        }
+
+        const qOffLx = (0.5 - pivotU) * worldW;
+        const qOffLz = (0.5 - pivotV) * worldH;
+        const quadCx = jointX + (qOffLx * cos + qOffLz * sin);
+        const quadCz = jointZ + (-qOffLx * sin + qOffLz * cos);
+
+        // Coupled Sagittal Shear (GCF SkeletalKinematics lines 617-656)
+        let hasSagShear = false;
+        let sagGx = 0, sagGz = 0;
+        const sagFx = hullSin, sagFz = hullCos;
+        if (rig.useCoupledSagittalKinematics && Math.abs(ownSagForward) > 1e-5) {
+          const childIdx = def.firstArticulatedChildIndex;
+          const targetUV = (childIdx >= 0 && childIdx < count)
+            ? nodes[childIdx].resolvedParentSocketUV
+            : [0.5, 0.88];
+          const dLx = (targetUV[0] - pivotU) * worldW;
+          const dLz = (targetUV[1] - pivotV) * worldH;
+          const dSx = dLx * cos + dLz * sin;
+          const dSz = -dLx * sin + dLz * cos;
+          const segLenSq = dSx * dSx + dSz * dSz;
+          if (segLenSq > 1e-5) {
+            const ch = (dSx * hullSin + dSz * hullCos) / segLenSq;
+            if (Math.abs(ch) > 1e-5) {
+              const rawDet = 1.0 + ownSagForward * ch;
+              if (rawDet < 0.30) ownSagForward = (0.30 - 1.0) / ch;
+              else if (rawDet > 2.40) ownSagForward = (2.40 - 1.0) / ch;
+            }
+            if (Math.abs(ownSagForward) > 1e-5) {
+              const invLenSq = ownSagForward / segLenSq;
+              sagGx = dSx * invLenSq;
+              sagGz = dSz * invLenSq;
+              hasSagShear = true;
+            }
+          }
+        }
+
+        // Coronal 3D Hinge Projection (GCF SkeletalKinematics lines 657-702)
+        let hasFlap = false;
+        let flapHx = 0, flapHz = 0;
+        let flapNx = 0, flapNz = 0;
+        let flapCos = 1.0;
+        if (pIdx >= 0 && out[pIdx].hasCoronalFlap) {
+          hasFlap = true;
+          flapHx = out[pIdx].flapHingeX;
+          flapHz = out[pIdx].flapHingeZ;
+          flapNx = out[pIdx].flapNormalX;
+          flapNz = out[pIdx].flapNormalZ;
+          flapCos = out[pIdx].flapCosPsi;
+        }
+        const effCoronalFlap = (def.baseCoronalFlap || 0) + (def.isRigid && pIdx >= 0 ? 0 : (anim.coronalFlap || 0));
+        if (def.isCoronalFlapHinge && Math.abs(effCoronalFlap) > 1e-4) {
+          const cosPsi = clamp(Math.cos(effCoronalFlap * DEG2RAD), 0.12, 1.0);
+          if (!hasFlap) {
+            hasFlap = true;
+            flapHx = jointX;
+            flapHz = jointZ;
+            flapNx = hullCos;
+            flapNz = -hullSin;
+            flapCos = cosPsi;
+          } else {
+            const parentCos = flapCos;
+            const combinedCos = clamp(parentCos * cosPsi, 0.12, 1.0);
+            const denom = 1.0 - combinedCos;
+            if (denom > 1e-5) {
+              const parentLat = (jointX - flapHx) * flapNx + (jointZ - flapHz) * flapNz;
+              const parentShift = (parentCos - 1.0) * parentLat;
+              const hOff = parentShift / denom;
+              flapHx = jointX + hOff * flapNx;
+              flapHz = jointZ + hOff * flapNz;
+            } else {
+              flapHx = jointX;
+              flapHz = jointZ;
+            }
+            flapCos = combinedCos;
+          }
+        }
+
+        let projJx = jointX, projJz = jointZ;
+        if (hasFlap && Math.abs(flapCos - 1.0) > 1e-5) {
+          const dLatJ = (jointX - flapHx) * flapNx + (jointZ - flapHz) * flapNz;
+          const shiftJ = (flapCos - 1.0) * dLatJ;
+          projJx = jointX + shiftJ * flapNx;
+          projJz = jointZ + shiftJ * flapNz;
+        }
+
+        out[i] = {
+          nodeIndex: i,
+          def: def,
+          visible: visible,
+          jointX: projJx,
+          jointZ: projJz,
+          flatJointX: jointX,
+          flatJointZ: jointZ,
+          quadCx: quadCx,
+          quadCz: quadCz,
+          worldAngleDeg: worldAngle,
+          worldW: worldW,
+          worldH: worldH,
+          pivotU: pivotU,
+          pivotV: pivotV,
+          layerOffset: def.layerOffset || 0,
+          cosTheta: cos,
+          sinTheta: sin,
+          hasSagittalShear: hasSagShear,
+          sagGx: sagGx,
+          sagGz: sagGz,
+          sagFx: sagFx,
+          sagFz: sagFz,
+          ownSagittalForwardCells: ownSagForward,
+          hasCoronalFlap: hasFlap,
+          flapHingeX: flapHx,
+          flapHingeZ: flapHz,
+          flapNormalX: flapNx,
+          flapNormalZ: flapNz,
+          flapCosPsi: flapCos
+        };
+      }
+      return out;
+    }
+
+    function uvToWorldXZFlat(pose, u, v) {
+      const hasProj = (pose.hasCoronalFlap && Math.abs(pose.flapCosPsi - 1.0) > 1e-5) || pose.hasSagittalShear;
+      const rx = hasProj ? pose.flatJointX : pose.jointX;
+      const rz = hasProj ? pose.flatJointZ : pose.jointZ;
+      const lx = (u - pose.pivotU) * pose.worldW;
+      const lz = (v - pose.pivotV) * pose.worldH;
+      return {
+        x: rx + (lx * pose.cosTheta + lz * pose.sinTheta),
+        z: rz + (-lx * pose.sinTheta + lz * pose.cosTheta)
+      };
+    }
+
+    function uvToWorldXZ(pose, u, v) {
+      const pt = uvToWorldXZFlat(pose, u, v);
+      if (pose.hasSagittalShear) {
+        const dSag = pose.sagGx * (pt.x - pose.flatJointX) + pose.sagGz * (pt.z - pose.flatJointZ);
+        pt.x += dSag * pose.sagFx;
+        pt.z += dSag * pose.sagFz;
+      }
+      if (pose.hasCoronalFlap && Math.abs(pose.flapCosPsi - 1.0) > 1e-5) {
+        const dLat = (pt.x - pose.flapHingeX) * pose.flapNormalX + (pt.z - pose.flapHingeZ) * pose.flapNormalZ;
+        const shift = (pose.flapCosPsi - 1.0) * dLat;
+        pt.x += shift * pose.flapNormalX;
+        pt.z += shift * pose.flapNormalZ;
+      }
+      return pt;
+    }
+
+    // 1:1 Identical to Python solve_leg_ik_2d in scripts/build_preview.py:
+    // Exact Law-of-Cosines 2-Bone Analytical IK Solver with GCF Coronal 3D Hinge Inversion
+    const LEG_IDS_ORDERED = ["leg_fl", "leg_fr", "leg_ml", "leg_mr", "leg_rl", "leg_rr"];
+
+    function solveLegIK2D(rig, legId, hullWorldX, hullWorldZ, hullWorldAngleDeg, targetWorldX, targetWorldZ, coronalFlapDeg = 0.0, effScale = 1.0) {
+      const meta = rig.legIkMeta && rig.legIkMeta[legId];
+      if (!meta) return { femurAngle: 0, tibiaAngle: 0 };
+
+      const hullRad = hullWorldAngleDeg * DEG2RAD;
+      const hullCos = Math.cos(hullRad);
+      const hullSin = Math.sin(hullRad);
+
+      const hipLx = meta.hipLocalX * effScale;
+      const hipLz = meta.hipLocalZ * effScale;
+      const hipWx = hullWorldX + (hipLx * hullCos + hipLz * hullSin);
+      const hipWz = hullWorldZ + (-hipLx * hullSin + hipLz * hullCos);
+
+      // Project (target - hip) onto hull orthonormal basis:
+      //   e_x = (hullCos, -hullSin) [lateral +Right, exact coronalFlap normal]
+      //   e_z = (hullSin,  hullCos) [longitudinal +Bow]
+      const relWx = targetWorldX - hipWx;
+      const relWz = targetWorldZ - hipWz;
+      const dxProj = relWx * hullCos + relWz * (-hullSin);
+      const dzProj = relWx * hullSin + relWz * hullCos;
+
+      const flapCos = Math.abs(coronalFlapDeg) > 1e-4 ? clamp(Math.cos(coronalFlapDeg * DEG2RAD), 0.12, 1.0) : 1.0;
+      const dxFlat = dxProj / flapCos;
+      const dzFlat = dzProj;
+
+      const l1 = meta.L1 * effScale;
+      const l2 = meta.L2 * effScale;
+      const minR = Math.abs(l1 - l2) + 1e-5;
+      const maxR = (l1 + l2) - 1e-5;
+      const rawR = Math.hypot(dxFlat, dzFlat);
+      const r = clamp(rawR, minR, maxR);
+
+      const bearingDeg = rawR > 1e-7 ? (Math.atan2(dxFlat, dzFlat) * RAD2DEG) : meta.femurBaseAngle;
+
+      const cosAlpha = clamp((l1 * l1 + r * r - l2 * l2) / (2.0 * l1 * r), -1.0, 1.0);
+      const alphaDeg = Math.acos(cosAlpha) * RAD2DEG;
+
+      const cosKnee = clamp((r * r - l1 * l1 - l2 * l2) / (2.0 * l1 * l2), -1.0, 1.0);
+      const absKneeDeg = Math.acos(cosKnee) * RAD2DEG;
+
+      const bendSign = meta.bendSign;
+      const theta1HullDeg = bearingDeg - bendSign * alphaDeg;
+      const deltaKneeDeg = bendSign * absKneeDeg;
+
+      return {
+        femurAngle: deltaAngle(meta.femurBaseAngle, theta1HullDeg),
+        tibiaAngle: deltaAngle(meta.tibiaBaseAngle, deltaKneeDeg),
+        hipWorldX: hipWx,
+        hipWorldZ: hipWz
+      };
+    }
+
+    function convexHull2D(points) {
+      if (!points || points.length <= 2) return points ? points.slice() : [];
+      const sorted = points.slice().sort((a, b) => (Math.abs(a.x - b.x) > 1e-7 ? a.x - b.x : a.z - b.z));
+      const unique = [];
+      for (let i = 0; i < sorted.length; i++) {
+        if (i === 0 || Math.hypot(sorted[i].x - sorted[i - 1].x, sorted[i].z - sorted[i - 1].z) > 1e-6) {
+          unique.push(sorted[i]);
+        }
+      }
+      if (unique.length <= 2) return unique;
+      const cross = (o, a, b) => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
+      const lower = [];
+      for (let i = 0; i < unique.length; i++) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], unique[i]) <= 0) {
+          lower.pop();
+        }
+        lower.push(unique[i]);
+      }
+      const upper = [];
+      for (let i = unique.length - 1; i >= 0; i--) {
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], unique[i]) <= 0) {
+          upper.pop();
+        }
+        upper.push(unique[i]);
+      }
+      lower.pop();
+      upper.pop();
+      return lower.concat(upper);
+    }
+
+    function evaluateComStabilityAgainstHull(comPt, polyCcw) {
+      if (!polyCcw || polyCcw.length < 3) {
+        return { inside: false, margin: -999.0, closestX: comPt.x, closestZ: comPt.z };
+      }
+      let minSignedDist = 1e9;
+      let bestX = polyCcw[0].x;
+      let bestZ = polyCcw[0].z;
+      for (let i = 0; i < polyCcw.length; i++) {
+        const a = polyCcw[i];
+        const b = polyCcw[(i + 1) % polyCcw.length];
+        const ex = b.x - a.x;
+        const ez = b.z - a.z;
+        const elen = Math.hypot(ex, ez);
+        if (elen < 1e-8) continue;
+        // CCW in (X=right, Z=up): inward normal is (-ez, ex) / elen
+        const signedD = ((comPt.x - a.x) * (-ez) + (comPt.z - a.z) * ex) / elen;
+        if (signedD < minSignedDist) {
+          minSignedDist = signedD;
+          const projT = clamp(((comPt.x - a.x) * ex + (comPt.z - a.z) * ez) / (elen * elen), 0.0, 1.0);
+          bestX = a.x + ex * projT;
+          bestZ = a.z + ez * projT;
+        }
+      }
+      return {
+        inside: minSignedDist > 0.0,
+        margin: minSignedDist,
+        closestX: bestX,
+        closestZ: bestZ
+      };
+    }
+
+    function isTickInStanceWindow(windows, tick, eps = 1e-3) {
+      if (!windows || !windows.length) return false;
+      for (let i = 0; i < windows.length; i++) {
+        if (tick >= windows[i][0] - eps && tick <= windows[i][1] + eps) return true;
+      }
+      return false;
+    }
+
+    // Exact 2x3 Canvas Affine Matrix matching GCF BoneWorldPose.BuildRenderMatrix (including Sagittal Shear + Coronal Projection)
+    function drawBoneSprite(ctx, img, pose, cam, alpha, compositeOp) {
+      if (!img || !pose.visible || alpha <= 0.002) return;
+      const texW = img.naturalWidth || pose.def.resolution || 512;
+      const texH = img.naturalHeight || pose.def.resolution || 512;
+      const pivPx = pose.pivotU * texW;
+      const pivPy = (1.0 - pose.pivotV) * texH;
+
+      // Unprojected basis vectors per image pixel (+1 px right, +1 px down)
+      const lxX = pose.worldW / texW;
+      const lzY = -pose.worldH / texH;
+
+      let vxX = lxX * pose.cosTheta;
+      let vzX = -lxX * pose.sinTheta;
+      let vxY = lzY * pose.sinTheta;
+      let vzY = lzY * pose.cosTheta;
+
+      let ox = pose.flatJointX;
+      let oz = pose.flatJointZ;
+
+      if (pose.hasSagittalShear) {
+        const dX = pose.sagGx * vxX + pose.sagGz * vzX;
+        vxX += dX * pose.sagFx;
+        vzX += dX * pose.sagFz;
+
+        const dY = pose.sagGx * vxY + pose.sagGz * vzY;
+        vxY += dY * pose.sagFx;
+        vzY += dY * pose.sagFz;
+      }
+
+      if (pose.hasCoronalFlap && Math.abs(pose.flapCosPsi - 1.0) > 1e-5) {
+        const k = pose.flapCosPsi - 1.0;
+        const nx = pose.flapNormalX;
+        const nz = pose.flapNormalZ;
+
+        const dO = (ox - pose.flapHingeX) * nx + (oz - pose.flapHingeZ) * nz;
+        ox += k * dO * nx;
+        oz += k * dO * nz;
+
+        const dVx = vxX * nx + vzX * nz;
+        vxX += k * dVx * nx;
+        vzX += k * dVx * nz;
+
+        const dVy = vxY * nx + vzY * nz;
+        vxY += k * dVy * nx;
+        vzY += k * dVy * nz;
+      }
+
+      const ppm = cam.ppm * cam.dpr;
+      const sxPivot = (cam.cx + (ox - cam.x) * cam.ppm) * cam.dpr;
+      const syPivot = (cam.cy - (oz - cam.z) * cam.ppm) * cam.dpr;
+
+      const a = vxX * ppm;
+      const b = -vzX * ppm;
+      const c = vxY * ppm;
+      const d = -vzY * ppm;
+      const e = sxPivot - a * pivPx - c * pivPy;
+      const f = syPivot - b * pivPx - d * pivPy;
+
+      ctx.save();
+      if (compositeOp) ctx.globalCompositeOperation = compositeOp;
+      ctx.globalAlpha = alpha;
+      ctx.setTransform(a, b, c, d, e, f);
+      ctx.drawImage(img, 0, 0);
+      ctx.restore();
+    }
+
+    // Seeded deterministic pseudo-random for crisp repeatable lightning bolts
+    function hashRand(seed) {
+      let x = Math.sin(seed * 127.1 + 311.7) * 43758.5453123;
+      return x - Math.floor(x);
+    }
+
+    function drawLightningArc(ctx, x1, y1, x2, y2, seed, opts = {}) {
+      const segments = opts.segments || 14;
+      const sway = opts.sway !== undefined ? opts.sway : 18;
+      const colorOuter = opts.colorOuter || "rgba(44, 138, 255, 0.34)";
+      const colorMid = opts.colorMid || "rgba(60, 242, 255, 0.86)";
+      const colorCore = opts.colorCore || "rgba(242, 254, 255, 0.98)";
+      const widthScale = opts.widthScale || 1.0;
+
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      const pts = [{ x: x1, y: y1 }];
+      for (let i = 1; i < segments; i++) {
+        const u = i / segments;
+        const env = Math.sin(u * Math.PI);
+        const r = (hashRand(seed + i * 13.37) - 0.5) * 2.0;
+        const off = r * sway * env;
+        pts.push({
+          x: x1 + dx * u + nx * off,
+          y: y1 + dy * u + ny * off
+        });
+      }
+      pts.push({ x: x2, y: y2 });
+
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.globalCompositeOperation = "lighter";
+
+      const strokePass = (col, w) => {
+        ctx.strokeStyle = col;
+        ctx.lineWidth = w * widthScale;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.stroke();
+      };
+
+      strokePass(colorOuter, 8.5);
+      strokePass(colorMid, 3.8);
+      strokePass(colorCore, 1.5);
+
+      // Branching sub-arcs
+      if (opts.branches !== false && len > 45) {
+        for (let b = 0; b < 2; b++) {
+          const idx = Math.floor(segments * (0.3 + 0.35 * b));
+          if (idx > 0 && idx < pts.length - 1) {
+            const p = pts[idx];
+            const ang = Math.atan2(dy, dx) + (hashRand(seed + 71 * (b + 1)) - 0.5) * 1.25;
+            const bLen = len * (0.22 + 0.12 * hashRand(seed + 91 * (b + 1)));
+            const bx = p.x + Math.cos(ang) * bLen;
+            const by = p.y + Math.sin(ang) * bLen;
+            ctx.strokeStyle = colorMid;
+            ctx.lineWidth = 1.6 * widthScale;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo((p.x + bx) * 0.5 + nx * 6, (p.y + by) * 0.5 + ny * 6);
+            ctx.lineTo(bx, by);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // STUDIO APPLICATION STATE
+    // =========================================================================
+    const Studio = {
+      mode: "inspector", // 'inspector' | 'sandbox'
+      bundle: null,
+      images: {},
+      loadedCount: 0,
+      totalTextures: 0,
+
+      // Shared UI flags
+      showGrid: true,
+      showPhysics: true,
+      showPivots: false,
+      showSectors: false,
+      showGlow: true,
+      useCrossFade: true,
+      inspectorCursorAim: false,
+      inspectorClickFire: true,
+      autoSpin: false,
+      contractStageOverride: 0, // 0 = auto cycle 1..5
+
+      // Inspector state
+      activeClipIdx: 0,
+      playing: true,
+      speed: 1.0,
+      clipTick: 0.0,
+      inspectorUnwrappedTicks: 0.0,
+      inspectorPrevTick: 0.0,
+      inspectorFloorMarks: [],
+      inspectorStanceAnchors: {},
+      continuousTicks: 0.0,
+      inspectorCycleCount: 0,
+      headingDeg: 0.0,
+      camZoom: 1.0,
+      camPanX: 0.0,
+      camPanZ: 0.0,
+      missingMask: [],
+      blendFromPoses: null,
+      blendElapsed: 999,
+      blendDuration: 8,
+
+      // Turret steering & recoil state (shared structure)
+      leftArmOffsets: [0, 0],
+      rightArmOffsets: [0, 0],
+      recoils: {},
+
+      // Mouse state
+      mouseX: 0,
+      mouseY: 0,
+      mouseWorldX: 0,
+      mouseWorldZ: 5,
+      mouseDownLeft: false,
+      keys: {},
+
+      // Sandbox state
+      sb: {
+        x: -7.5,
+        z: -1.5,
+        headingDeg: 75,
+        fwdVel: 0,
+        turnVelDeg: 0,
+        velX: 0,
+        velZ: 0,
+        isPivotTurning: false,
+        moveOrder: null,
+        inWater: false,
+        morphState: "land", // 'land' | 'morph_to_water' | 'water' | 'morph_to_land'
+        morphTick: 0,
+        walkPhase: 0,
+        idleTicks: 0,
+        hexapod: {
+          legs: [],
+          lastSwungGroup: "B",
+          doubleSupportTicks: 0,
+          lateralShift: 0
+        },
+        dustPuffs: [],
+        armedSkill: 0, // 0 | 1 | 2 | 3
+        activeSkill: null, // { kind: 1|2|3, tick, maxTick, targetX, targetZ, startX, startZ, pawnId }
+        pondFish: [],
+        maxFish: 18,
+        flyingFish: [],
+        shoreStacks: { salmon: 0, bass: 0, toxfish: 0 },
+        wakeParticles: [],
+        pawns: [],
+        selectedPawnId: "human_land_2",
+        logs: []
+      },
+
+      init() {
+        this.bundle = window.STINGRAY_BUNDLE;
+        const pill = document.getElementById("assetStatusPill");
+        if (!this.bundle || !this.bundle.rig || !this.bundle.clips) {
+          pill.textContent = "ERROR: textures_bundle.js NOT FOUND";
+          pill.classList.add("warn");
+          return;
+        }
+
+        document.getElementById("unitLoreDesc").textContent = this.bundle.lore.mechDescription;
+        this.missingMask = new Array(this.bundle.rig.nodes.length).fill(false);
+        this.bundle.rig.nodes.forEach((_, idx) => {
+          this.recoils[idx] = new TurretRecoilRuntime();
+        });
+
+        this.loadEmbeddedImages().then(() => {
+          pill.textContent = `TEXTURES: ${this.loadedCount}/${this.totalTextures} EMBEDDED | ZERO-CORS FILE:// READY`;
+          this.buildClipListUI();
+          this.buildLayerStackUI();
+          this.updateContractPreviewBox(1);
+          this.initSandboxWorld();
+          this.selectClip(0, false);
+          if (window.location.hash === "#sandbox") {
+            this.setMode("sandbox");
+          }
+          this.bindEvents();
+          requestAnimationFrame((ts) => this.loop(ts));
+        });
+      },
+
+      loadEmbeddedImages() {
+        const texMap = this.bundle.textures || {};
+        const keys = Object.keys(texMap);
+        this.totalTextures = keys.length;
+        this.loadedCount = 0;
+        const promises = keys.map((k) => new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            this.images[k] = img;
+            this.loadedCount++;
+            resolve();
+          };
+          img.onerror = () => resolve();
+          img.src = texMap[k];
+        }));
+        return Promise.all(promises);
+      },
+
+      buildClipListUI() {
+        const container = document.getElementById("clipListContainer");
+        container.innerHTML = "";
+        this.bundle.clips.forEach((clip, idx) => {
+          const el = document.createElement("div");
+          el.className = "clip-item" + (idx === this.activeClipIdx ? " active" : "");
+          el.dataset.idx = idx;
+
+          let catBadge = `<span class="badge land">LAND</span>`;
+          if (clip.category === "water") catBadge = `<span class="badge water">BOAT</span>`;
+          else if (clip.category === "morph") catBadge = `<span class="badge morph">MORPH</span>`;
+          else if (clip.category === "skill") catBadge = `<span class="badge skill">SKILL</span>`;
+          else if (clip.category === "damage") catBadge = `<span class="badge dmg">DAMAGE</span>`;
+
+          const loopBadge = `<span class="badge">${clip.loop ? "LOOP" : "1-SHOT"}</span>`;
+
+          el.innerHTML = `
+            <div class="clip-row-top">
+              <span class="clip-code">${clip.id}</span>
+              <div class="clip-badges">${catBadge}${loopBadge}</div>
+            </div>
+            <div class="clip-title">${clip.titleZh}</div>
+            <div class="clip-sub">${clip.titleEn} | ${clip.durationTicks} ticks</div>
+          `;
+          el.onclick = () => this.selectClip(idx, this.useCrossFade);
+          container.appendChild(el);
+        });
+      },
+
+      buildLayerStackUI() {
+        const list = document.getElementById("layerStackList");
+        list.innerHTML = "";
+        const sortedByLayer = [...this.bundle.rig.nodes].sort((a, b) => b.layerOffset - a.layerOffset);
+        sortedByLayer.forEach((node) => {
+          const row = document.createElement("div");
+          const isHull = node.role === "hull";
+          const isLeg = node.role && node.role.startsWith("leg_");
+          row.className = "layer-row" + (isHull ? " hull" : (isLeg ? " leg" : ""));
+          const rIdx = node.runtimeIndex;
+          const disabledAttr = node.hideWhenMissing === false ? "disabled" : "";
+          row.innerHTML = `
+            <span>[L:${node.layerOffset >= 0 ? "+" + node.layerOffset : node.layerOffset}] ${node.nodeId}</span>
+            <input type="checkbox" ${!this.missingMask[rIdx] ? "checked" : ""} ${disabledAttr}
+              title="切换部位完好/断肢缺失"
+              onchange="Studio.toggleBoneIntact(${rIdx}, this.checked)">
+          `;
+          list.appendChild(row);
+        });
+      },
+
+      toggleBoneIntact(runtimeIdx, intact) {
+        this.missingMask[runtimeIdx] = !intact;
+      },
+
+      restoreAllBones() {
+        this.missingMask.fill(false);
+        this.buildLayerStackUI();
+      },
+
+      setMode(m) {
+        this.mode = m;
+        document.getElementById("tabInspector").classList.toggle("active", m === "inspector");
+        document.getElementById("tabSandbox").classList.toggle("active", m === "sandbox");
+        document.getElementById("inspectorLeft").classList.toggle("hidden", m !== "inspector");
+        document.getElementById("inspectorRight").classList.toggle("hidden", m !== "inspector");
+        document.getElementById("inspectorTransport").classList.toggle("hidden", m !== "inspector");
+        document.getElementById("sandboxLeft").classList.toggle("hidden", m !== "sandbox");
+        document.getElementById("sandboxRight").classList.toggle("hidden", m !== "sandbox");
+        document.getElementById("sandboxGizmoBar").classList.toggle("hidden", m !== "sandbox");
+        this.camZoom = 1.0;
+        this.camPanX = 0;
+        this.camPanZ = 0;
+        if (m === "sandbox") {
+          this.renderSandboxPawnCards();
+        } else {
+          this.selectClip(this.activeClipIdx, false);
+        }
+      },
+
+      selectClip(idx, withBlend = true) {
+        const prevClip = this.bundle.clips[this.activeClipIdx];
+        if (withBlend && prevClip) {
+          this.blendFromPoses = this.evaluateClipLocalPoses(prevClip, this.clipTick);
+          this.blendElapsed = 0;
+        } else {
+          this.blendFromPoses = null;
+          this.blendElapsed = 999;
+        }
+
+        this.activeClipIdx = idx;
+        const clip = this.bundle.clips[idx];
+        this.blendDuration = Math.max(1, clip.blendInTicks || 6);
+        this.clipTick = 0;
+        this.inspectorCycleCount = 0;
+        this.inspectorUnwrappedTicks = 0;
+        this.inspectorPrevTick = 0;
+        this.inspectorFloorMarks = [];
+        this.inspectorStanceAnchors = {};
+
+        document.querySelectorAll(".clip-item").forEach((el, i) => {
+          el.classList.toggle("active", i === idx);
+        });
+
+        const slider = document.getElementById("timelineSlider");
+        slider.max = clip.durationTicks;
+        slider.value = 0;
+
+        document.getElementById("hudTitle").textContent = `${clip.id} — ${clip.titleZh} (${clip.titleEn})`;
+        document.getElementById("hudDesc").textContent = clip.description;
+      },
+
+      evaluateClipLocalPoses(clip, tick) {
+        const nodes = this.bundle.rig.nodes;
+        const poses = new Array(nodes.length);
+        const trackMap = clip.trackMap;
+        if (!trackMap) {
+          clip.trackMap = {};
+          (clip.tracks || []).forEach((tr) => { clip.trackMap[tr.nodeId] = tr.keyframes; });
+        }
+        for (let i = 0; i < nodes.length; i++) {
+          const nid = nodes[i].nodeId;
+          const kfs = clip.trackMap[nid];
+          poses[i] = kfs ? sampleTrackAt(kfs, tick, clip.durationTicks, clip.loop) : identityLocalPose();
+        }
+        return poses;
+      },
+
+      togglePlay() {
+        this.playing = !this.playing;
+        document.getElementById("btnPlayPause").textContent = this.playing ? "PAUSE [Space]" : "PLAY [Space]";
+      },
+
+      stepTicks(dt) {
+        this.playing = false;
+        document.getElementById("btnPlayPause").textContent = "PLAY [Space]";
+        const clip = this.bundle.clips[this.activeClipIdx];
+        if (!clip) return;
+        let next = this.clipTick + dt;
+        if (clip.loop) {
+          if (next >= clip.durationTicks) this.inspectorCycleCount++;
+          else if (next < 0) this.inspectorCycleCount = Math.max(0, this.inspectorCycleCount - 1);
+          next = next % clip.durationTicks;
+          if (next < 0) next += clip.durationTicks;
+          this.inspectorUnwrappedTicks = this.inspectorCycleCount * clip.durationTicks + next;
+        } else {
+          next = clamp(next, 0, clip.durationTicks);
+          this.inspectorUnwrappedTicks = next;
+        }
+        this.clipTick = next;
+        this.inspectorPrevTick = next;
+        this.inspectorStanceAnchors = {};
+        document.getElementById("timelineSlider").value = next;
+      },
+
+      restartClip() {
+        this.clipTick = 0;
+        this.inspectorCycleCount = 0;
+        this.inspectorUnwrappedTicks = 0;
+        this.inspectorPrevTick = 0;
+        this.inspectorFloorMarks = [];
+        this.inspectorStanceAnchors = {};
+        this.playing = true;
+        document.getElementById("btnPlayPause").textContent = "PAUSE [Space]";
+      },
+
+      setSpeed(s) {
+        this.speed = s;
+        document.querySelectorAll(".speed-btn").forEach((b) => {
+          b.classList.toggle("active", parseFloat(b.dataset.spd) === s);
+        });
+      },
+
+      onScrubInput(val) {
+        this.playing = false;
+        document.getElementById("btnPlayPause").textContent = "PLAY [Space]";
+        const clip = this.bundle.clips[this.activeClipIdx];
+        this.clipTick = parseFloat(val);
+        this.inspectorPrevTick = this.clipTick;
+        this.inspectorUnwrappedTicks = (clip && clip.loop)
+          ? (this.inspectorCycleCount * clip.durationTicks + this.clipTick)
+          : this.clipTick;
+        this.inspectorStanceAnchors = {};
+      },
+
+      setHeading(deg) {
+        this.headingDeg = normalizeAngle360(parseFloat(deg));
+        document.getElementById("headingSlider").value = Math.round(this.headingDeg);
+        document.getElementById("headingValLabel").textContent = `${Math.round(this.headingDeg)} deg`;
+      },
+
+      toggleAutoSpin() {
+        this.autoSpin = !this.autoSpin;
+        const btn = document.getElementById("btnAutoSpin");
+        btn.textContent = `AUTO SPIN: ${this.autoSpin ? "ON" : "OFF"}`;
+        btn.classList.toggle("active", this.autoSpin);
+      },
+
+      setContractStage(stg) {
+        this.contractStageOverride = stg;
+        document.querySelectorAll(".stage-btn").forEach((b) => {
+          b.classList.toggle("active", parseInt(b.dataset.stg, 10) === stg);
+        });
+        document.getElementById("contractStageLabel").textContent = stg === 0 ? "AUTO CYCLE" : `STAGE ${stg}`;
+        this.updateContractPreviewBox(stg === 0 ? ((this.inspectorCycleCount % 5) + 1) : stg);
+      },
+
+      updateContractPreviewBox(stageNum) {
+        const s = clamp(stageNum, 1, 5);
+        document.getElementById("inspectorContractTitle").textContent = `【无慰契约】第 ${s} 次电击治疗结算文本`;
+        document.getElementById("inspectorContractText").textContent = this.bundle.lore.contractStages[s - 1];
+      },
+
+      onDebugToggle() {
+        const chkPhys = document.getElementById("chkShowPhysics");
+        if (chkPhys) this.showPhysics = chkPhys.checked;
+        const btnPhys = document.getElementById("btnPhysicsToggle");
+        if (btnPhys) {
+          btnPhys.textContent = `物理支撑面: ${this.showPhysics ? "ON" : "OFF"}`;
+          btnPhys.classList.toggle("active", this.showPhysics);
+        }
+        this.showPivots = document.getElementById("chkShowPivots").checked;
+        this.showSectors = document.getElementById("chkShowSectors").checked;
+        this.showGlow = document.getElementById("chkShowGlow").checked;
+        this.useCrossFade = document.getElementById("chkCrossFade").checked;
+        this.inspectorCursorAim = document.getElementById("chkInspectorCursorAim").checked;
+        this.inspectorClickFire = document.getElementById("chkInspectorClickFire").checked;
+      },
+
+      togglePhysicsOverlay() {
+        this.showPhysics = !this.showPhysics;
+        const chkPhys = document.getElementById("chkShowPhysics");
+        if (chkPhys) chkPhys.checked = this.showPhysics;
+        const btnPhys = document.getElementById("btnPhysicsToggle");
+        if (btnPhys) {
+          btnPhys.textContent = `物理支撑面: ${this.showPhysics ? "ON" : "OFF"}`;
+          btnPhys.classList.toggle("active", this.showPhysics);
+        }
+      },
+
+      toggleGrid() {
+        this.showGrid = !this.showGrid;
+        document.getElementById("btnGridToggle").textContent = `网格: ${this.showGrid ? "ON" : "OFF"}`;
+      },
+
+      resetCamera() {
+        this.camZoom = 1.0;
+        this.camPanX = 0;
+        this.camPanZ = 0;
+      },
+
+      // =======================================================================
+      // AMPHIBIOUS SANDBOX INITIALIZATION & LOGIC
+      // =======================================================================
+      isPointInPond(wx, wz) {
+        // Organic RimWorld pond occupying right half of sandbox (center around x=5.5, z=0)
+        const dx = (wx - 5.6) / 8.2;
+        const dz = (wz - 0.2) / 6.8;
+        const wobble = 0.08 * Math.sin(wz * 0.75) + 0.06 * Math.cos(wx * 0.65);
+        return (dx * dx + dz * dz + wobble) < 1.0;
+      },
+
+      pondDepth01(wx, wz) {
+        const dx = (wx - 5.6) / 8.2;
+        const dz = (wz - 0.2) / 6.8;
+        const wobble = 0.08 * Math.sin(wz * 0.75) + 0.06 * Math.cos(wx * 0.65);
+        const r2 = dx * dx + dz * dz + wobble;
+        return clamp01(1.0 - r2);
+      },
+
+      initSandboxHexapod(scale = 0.86) {
+        const rig = this.bundle.rig;
+        const rad = this.sb.headingDeg * DEG2RAD;
+        const c = Math.cos(rad);
+        const s = Math.sin(rad);
+        this.sb.hexapod.legs = LEG_IDS_ORDERED.map((id) => {
+          const meta = rig.legIkMeta[id];
+          const ax = meta.nominalAnchorLocal[0] * scale;
+          const az = meta.nominalAnchorLocal[1] * scale;
+          const wx = this.sb.x + (ax * c + az * s);
+          const wz = this.sb.z + (-ax * s + az * c);
+          return {
+            id: id,
+            group: meta.tripodGroup,
+            plantedWorldX: wx,
+            plantedWorldZ: wz,
+            swingStartX: wx,
+            swingStartZ: wz,
+            swingTargetX: wx,
+            swingTargetZ: wz,
+            isSwinging: false,
+            swingProgress: 0.0,
+            swingDuration: 13.0,
+            liftHeight: 0.0,
+            coronalFlapDeg: 0.0,
+            footWorldX: wx,
+            footWorldZ: wz,
+            groundShadowX: wx,
+            groundShadowZ: wz
+          };
+        });
+        this.sb.hexapod.lastSwungGroup = "B";
+        this.sb.hexapod.doubleSupportTicks = 0;
+        this.sb.hexapod.lateralShift = 0;
+      },
+
+      initSandboxWorld() {
+        this.sb.x = -7.2;
+        this.sb.z = -1.2;
+        this.sb.headingDeg = 72;
+        this.sb.fwdVel = 0;
+        this.sb.turnVelDeg = 0;
+        this.sb.velX = 0;
+        this.sb.velZ = 0;
+        this.sb.isPivotTurning = false;
+        this.sb.inWater = false;
+        this.sb.morphState = "land";
+        this.sb.shoreStacks = { salmon: 0, bass: 0, toxfish: 0 };
+        this.sb.flyingFish = [];
+        this.sb.wakeParticles = [];
+        this.sb.dustPuffs = [];
+        this.sb.logs = [];
+        this.initSandboxHexapod(0.86);
+        this.respawnPondFish();
+        this.sb.pawns = [
+          {
+            id: "human_land_1", name: "绮罗勇者", kind: "human", x: -9.5, z: 4.2,
+            baseX: -9.5, baseZ: 4.2, inWater: false,
+            stunTicks: 0, spinDir: 0, jitterDeg: 0,
+            activeHediff: null, afterTicks: 0, therapyCount: 0, color: "#f6a6b8"
+          },
+          {
+            id: "human_land_2", name: "长寿种访客", kind: "human", x: -3.6, z: 3.4,
+            baseX: -3.6, baseZ: 3.4, inWater: false,
+            stunTicks: 0, spinDir: 0, jitterDeg: 0,
+            activeHediff: null, afterTicks: 0, therapyCount: 0, color: "#90b8ff"
+          },
+          {
+            id: "human_water_1", name: "涉水殖民者", kind: "human", x: 1.8, z: 2.3,
+            baseX: 1.8, baseZ: 2.3, inWater: true,
+            stunTicks: 0, spinDir: 0, jitterDeg: 0,
+            activeHediff: null, afterTicks: 0, therapyCount: 0, color: "#ffd280"
+          },
+          {
+            id: "animal_water_1", name: "水中雪牛", kind: "animal", x: 4.2, z: -2.8,
+            baseX: 4.2, baseZ: -2.8, inWater: true,
+            stunTicks: 0, spinDir: 0, jitterDeg: 0,
+            activeHediff: null, afterTicks: 0, therapyCount: 0, color: "#b8cee8"
+          },
+          {
+            id: "animal_land_1", name: "岸边水豚", kind: "animal", x: -4.2, z: -4.6,
+            baseX: -4.2, baseZ: -4.6, inWater: false,
+            stunTicks: 0, spinDir: 0, jitterDeg: 0,
+            activeHediff: null, afterTicks: 0, therapyCount: 0, color: "#c99b68"
+          }
+        ];
+        this.logSandbox("炼铜癖治疗器已部署：无线供电 100% 恒满，带宽占用 1。");
+        this.renderSandboxPawnCards();
+      },
+
+      respawnPondFish() {
+        this.sb.pondFish = [];
+        const speciesList = ["salmon", "bass", "salmon", "bass", "toxfish"];
+        for (let i = 0; i < this.sb.maxFish; i++) {
+          const ang = (i / this.sb.maxFish) * Math.PI * 2 + (i % 3) * 0.4;
+          const rad = 1.2 + (i % 5) * 1.1;
+          this.sb.pondFish.push({
+            x: 5.8 + Math.cos(ang) * rad * 1.05,
+            z: 0.2 + Math.sin(ang) * rad * 0.85,
+            heading: hashRand(i * 19.1) * Math.PI * 2,
+            speed: 0.025 + (i % 4) * 0.006,
+            species: speciesList[i % speciesList.length],
+            phase: i * 1.7
+          });
+        }
+      },
+
+      resetSandboxPond() {
+        this.respawnPondFish();
+        this.sb.flyingFish = [];
+        this.logSandbox("已重置连通水域鱼群：当前生态鱼量恢复至 18 尾。");
+      },
+
+      logSandbox(msg) {
+        const sec = Math.floor(this.continuousTicks / 60);
+        const mm = String(Math.floor(sec / 60)).padStart(2, "0");
+        const ss = String(sec % 60).padStart(2, "0");
+        this.sb.logs.unshift({ time: `${mm}:${ss}`, msg: msg });
+        if (this.sb.logs.length > 35) this.sb.logs.pop();
+        const box = document.getElementById("sandboxEventLog");
+        if (box) {
+          box.innerHTML = this.sb.logs.map((e) =>
+            `<div class="log-entry"><span class="t">[${e.time}]</span>${e.msg}</div>`
+          ).join("");
+        }
+      },
+
+      clearLogs() {
+        this.sb.logs = [];
+        const box = document.getElementById("sandboxEventLog");
+        if (box) box.innerHTML = "";
+      },
+
+      manualToggleMorph() {
+        if (this.mode !== "sandbox") return;
+        if (this.sb.morphState === "land") {
+          this.sb.morphState = "morph_to_water";
+          this.sb.morphTick = 0;
+          this.sb.fwdVel = 0;
+          this.logSandbox("手动切换形态：[0-18T] 锁地降重心入水浮力承托 -> [18-56T] 卸荷折叠六足收纳至船底。");
+        } else if (this.sb.morphState === "water") {
+          this.sb.morphState = "morph_to_land";
+          this.sb.morphTick = 0;
+          this.sb.fwdVel = 0;
+          this.initSandboxHexapod(0.86);
+          this.logSandbox("手动切换形态：[0-30T] 展开六足触地抓实 -> [30-56T] 双骨 IK 零滑移顶升船体。");
+        }
+      },
+
+      armSkill(num) {
+        if (this.mode !== "sandbox") return;
+        if (num === 3) {
+          const boatReady = this.sb.inWater || this.sb.morphState === "water";
+          if (!boatReady) {
+            this.logSandbox("无法释放【磁暴超载模式】：必须处于船体模式（位于水域内）。");
+            return;
+          }
+          // Immediate cast in current water body
+          this.sb.armedSkill = 0;
+          this.triggerSandboxOverload();
+          this.updateGizmoHighlights();
+          return;
+        }
+        this.sb.armedSkill = (this.sb.armedSkill === num) ? 0 : num;
+        this.updateGizmoHighlights();
+      },
+
+      updateGizmoHighlights() {
+        document.getElementById("gizmoSkill1").classList.toggle("active", this.sb.armedSkill === 1);
+        document.getElementById("gizmoSkill2").classList.toggle("active", this.sb.armedSkill === 2);
+        const boatReady = this.sb.inWater || this.sb.morphState === "water";
+        const g3 = document.getElementById("gizmoSkill3");
+        g3.classList.toggle("disabled", !boatReady);
+        document.getElementById("gizmoSkill3Sub").textContent = boatReady ? "全水域放电" : "需进入水域";
+      },
+
+      triggerSandboxTeleport(tx, tz) {
+        const sx = clamp(tx, -15.5, 15.5);
+        const sz = clamp(tz, -9.5, 9.5);
+        this.sb.activeSkill = {
+          kind: 1,
+          tick: 0,
+          maxTick: 60,
+          startX: this.sb.x,
+          startZ: this.sb.z,
+          targetX: sx,
+          targetZ: sz,
+          warped: false
+        };
+        this.sb.moveOrder = null;
+        this.logSandbox(`启动【远程传送协议】：超时空跃迁至坐标 (${sx.toFixed(1)}, ${sz.toFixed(1)})。`);
+      },
+
+      triggerSandboxTherapy(pawn) {
+        if (!pawn || pawn.kind !== "human") {
+          this.logSandbox("【炼铜癖治疗器】仅可对殖民者或类人目标使用。");
+          return;
+        }
+        this.sb.selectedPawnId = pawn.id;
+        this.sb.activeSkill = {
+          kind: 2,
+          tick: 0,
+          maxTick: 96,
+          pawnId: pawn.id
+        };
+        pawn.stunTicks = 96;
+        pawn.activeHediff = "therapy";
+        this.logSandbox(`对 ${pawn.name} 启动【炼铜癖治疗器】高压电弧治疗...`);
+        this.renderSandboxPawnCards();
+      },
+
+      triggerSandboxOverload() {
+        this.sb.activeSkill = {
+          kind: 3,
+          tick: 0,
+          maxTick: 90,
+          originX: this.sb.x,
+          originZ: this.sb.z
+        };
+
+        // 1. Empty WaterBody fish population onto shore!
+        const caughtCount = this.sb.pondFish.length;
+        if (caughtCount > 0) {
+          let nSalmon = 0, nBass = 0, nTox = 0;
+          this.sb.pondFish.forEach((f, idx) => {
+            if (f.species === "salmon") nSalmon++;
+            else if (f.species === "bass") nBass++;
+            else nTox++;
+
+            const landX = -2.2 - (idx % 4) * 0.65;
+            const landZ = -2.4 + Math.floor(idx / 4) * 1.15;
+            this.sb.flyingFish.push({
+              startX: f.x, startZ: f.z,
+              endX: landX, endZ: landZ,
+              species: f.species,
+              progress: 0,
+              arcHeight: 2.2 + (idx % 3) * 0.65
+            });
+          });
+          this.sb.shoreStacks.salmon += nSalmon;
+          this.sb.shoreStacks.bass += nBass;
+          this.sb.shoreStacks.toxfish += nTox;
+          this.sb.pondFish = [];
+          this.logSandbox(`【磁暴超载模式】清空整片连通水域鱼群 (${caughtCount} 尾)：三文鱼 x${nSalmon}，鲈鱼 x${nBass}，污染毒鱼 x${nTox}！`);
+          document.getElementById("shoreCatchSummary").textContent =
+            `累计岸边电鱼收获：三文鱼 x${this.sb.shoreStacks.salmon} | 鲈鱼 x${this.sb.shoreStacks.bass} | 毒鱼 x${this.sb.shoreStacks.toxfish}`;
+        } else {
+          this.logSandbox("【磁暴超载模式】释放全水域高压脉冲（当前水域鱼群已空）。");
+        }
+
+        // 2. Shock all pawns inside water body!
+        this.sb.pawns.forEach((p) => {
+          if (this.isPointInPond(p.x, p.z) || p.inWater) {
+            if (p.kind === "human") {
+              p.stunTicks = 85;
+              p.activeHediff = "therapy";
+              this.logSandbox(`水域人形 [${p.name}] 承受【炼铜癖治疗器】超载电击 -> 【炼铜癖治疗中】！`);
+            } else {
+              p.stunTicks = 85;
+              p.activeHediff = "electrocuted";
+              this.logSandbox(`水域生物 [${p.name}] 承受【鱼获之方块】超载电击 -> 【触电了】("哦齁齁齁齁齁齁齁")！`);
+            }
+          }
+        });
+        this.renderSandboxPawnCards();
+      },
+
+      renderSandboxPawnCards() {
+        const wrap = document.getElementById("sandboxPawnCards");
+        if (!wrap) return;
+        wrap.innerHTML = this.sb.pawns.map((p) => {
+          const sel = p.id === this.sb.selectedPawnId ? " selected" : "";
+          const locLabel = (this.isPointInPond(p.x, p.z) || p.inWater) ? "水域内" : "陆地岸上";
+          let tags = "";
+          if (p.activeHediff === "therapy") {
+            tags += `<span class="hediff-tag hediff-shock">【炼铜癖治疗中】"我...不会....哦齁齁齁齁"</span>`;
+          } else if (p.activeHediff === "electrocuted") {
+            tags += `<span class="hediff-tag hediff-shock">【触电了】"哦齁齁齁齁齁齁齁"</span>`;
+          }
+          if (p.afterTicks > 0) {
+            tags += `<span class="hediff-tag hediff-after">【刚刚被电了】2H (移速x95% 效率x95%) "酥酥麻麻的......"</span>`;
+          }
+          let contractHtml = "";
+          if (p.kind === "human" && p.therapyCount > 0) {
+            const stg = Math.min(5, p.therapyCount);
+            const txt = this.bundle.lore.contractStages[stg - 1];
+            tags += `<span class="hediff-tag hediff-contract">【无慰契约】(累计 ${p.therapyCount} 次)</span>`;
+            contractHtml = `<div style="margin-top:5px; font-size:10.5px; color:#dce6fa; line-height:1.4; border-top:1px solid #2b385c; padding-top:4px;">${txt}</div>`;
+          }
+          if (!tags) {
+            tags = `<span style="font-size:10.5px; color:var(--text-dim);">状态正常（点击可设为电疗目标）</span>`;
+          }
+          return `
+            <div class="pawn-card${sel}" onclick="Studio.onClickPawnCard('${p.id}')">
+              <div class="pawn-card-head">
+                <span style="color:${p.color};">${p.name} (${p.kind === "human" ? "类人" : "动物"})</span>
+                <span class="badge ${locLabel === "水域内" ? "water" : "land"}">${locLabel}</span>
+              </div>
+              <div>${tags}</div>
+              ${contractHtml}
+            </div>
+          `;
+        }).join("");
+      },
+
+      onClickPawnCard(pawnId) {
+        this.sb.selectedPawnId = pawnId;
+        const p = this.sb.pawns.find((x) => x.id === pawnId);
+        if (this.sb.armedSkill === 2 && p) {
+          this.sb.armedSkill = 0;
+          this.updateGizmoHighlights();
+          this.triggerSandboxTherapy(p);
+        } else {
+          this.renderSandboxPawnCards();
+        }
+      },
+
+      // =======================================================================
+      // DUAL TURRET STEERING SOLVER (2-Bone LookChain per Mechanical Arm)
+      // =======================================================================
+      applyDualArmTurretAiming(poses, rootXZ, rootHeadingDeg, aimWorldX, aimWorldZ, dtTicks, weight = 1.0) {
+        const rig = this.bundle.rig;
+        const baseWorld = solveWorldPoses(rig, rootXZ, rootHeadingDeg, poses, this.missingMask, 1.0, null);
+
+        const solveArm = (upperRole, podRole, stateArr) => {
+          const upperIdx = rig.roleMap[upperRole];
+          const podIdx = rig.roleMap[podRole];
+          if (upperIdx === undefined || podIdx === undefined) return;
+          const podPose = baseWorld[podIdx];
+          if (!podPose || !podPose.visible) return;
+
+          const dx = aimWorldX - podPose.jointX;
+          const dz = aimWorldZ - podPose.jointZ;
+          let desiredTotal = 0;
+          if (dx * dx + dz * dz > 0.09 && weight > 0.01) {
+            const targetWorldDeg = normalizeAngle360(Math.atan2(dx, dz) * RAD2DEG);
+            const restRefDeg = normalizeAngle360(
+              rootHeadingDeg + (rig.nodes[upperIdx].baseAngle || 0) + (rig.nodes[podIdx].baseAngle || 0)
+            );
+            const rawDelta = deltaAngle(restRefDeg, targetWorldDeg);
+            const maxArc = rig.nodes[podIdx].maxTurretAimAngleDeg || 125;
+            desiredTotal = clamp(rawDelta, -maxArc, maxArc) * weight;
+          }
+
+          const targetUpper = clamp(desiredTotal * 0.30, -28, 28);
+          const targetPod = clamp(desiredTotal - targetUpper, -105, 105);
+          const alpha = dtTicks > 0 ? (1.0 - Math.pow(0.72, dtTicks)) : 0.35;
+
+          stateArr[0] += deltaAngle(stateArr[0], targetUpper) * alpha;
+          stateArr[1] += deltaAngle(stateArr[1], targetPod) * alpha;
+
+          poses[upperIdx].angle += stateArr[0];
+          poses[podIdx].angle += stateArr[1];
+        };
+
+        solveArm("arm_upper_left", "tesla_pod_left", this.leftArmOffsets);
+        solveArm("arm_upper_right", "tesla_pod_right", this.rightArmOffsets);
+      },
+
+      // =======================================================================
+      // MAIN FRAME LOOP (60 FPS -> 60 RimWorld Ticks/sec at 1.0x)
+      // =======================================================================
+      lastTs: 0,
+      loop(ts) {
+        const rawDtSec = this.lastTs ? Math.min(0.05, (ts - this.lastTs) / 1000.0) : (1.0 / 60.0);
+        this.lastTs = ts;
+        const baseTicks = rawDtSec * 60.0;
+        this.continuousTicks += baseTicks;
+
+        const canvas = document.getElementById("mainCanvas");
+        const wrap = document.getElementById("canvasWrap");
+        const dpr = window.devicePixelRatio || 1;
+        const cw = wrap.clientWidth;
+        const ch = wrap.clientHeight;
+        if (canvas.width !== Math.floor(cw * dpr) || canvas.height !== Math.floor(ch * dpr)) {
+          canvas.width = Math.floor(cw * dpr);
+          canvas.height = Math.floor(ch * dpr);
+        }
+
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (this.mode === "inspector") {
+          this.stepAndRenderInspector(ctx, cw, ch, dpr, baseTicks);
+        } else {
+          this.stepAndRenderSandbox(ctx, cw, ch, dpr, baseTicks);
+        }
+
+        requestAnimationFrame((t) => this.loop(t));
+      },
+
+      // =======================================================================
+      // INSPECTOR FLOOR COORDINATE MAPPING & PHYSICS SUPPORT OVERLAY
+      // =======================================================================
+      inspectorFloorToWorld(clip, unwrappedTicks, headingDeg, fx, fz) {
+        const pm = clip.physicsMeta || {};
+        const ltype = pm.locomotionType || "static_land";
+        const radH = headingDeg * DEG2RAD;
+        const ch = Math.cos(radH);
+        const sh = Math.sin(radH);
+
+        if (ltype === "translate_fwd" || ltype === "water_cruise") {
+          const sHull = (pm.vHull || 0) * unwrappedTicks;
+          const dx = fx;
+          const dz = fz - sHull;
+          return { x: dx * ch + dz * sh, z: -dx * sh + dz * ch };
+        }
+        if (ltype === "turn_in_place") {
+          const com = pm.turnPivotLocal || [0.0, -0.08];
+          const pivWx = com[0] * ch + com[1] * sh;
+          const pivWz = -com[0] * sh + com[1] * ch;
+          const floorAng = (headingDeg - (pm.omegaHullDeg || 0) * unwrappedTicks) * DEG2RAD;
+          const cf = Math.cos(floorAng);
+          const sf = Math.sin(floorAng);
+          const rx = fx - com[0];
+          const rz = fz - com[1];
+          return { x: pivWx + (rx * cf + rz * sf), z: pivWz + (-rx * sf + rz * cf) };
+        }
+        return { x: fx * ch + fz * sh, z: -fx * sh + fz * ch };
+      },
+
+      inspectorWorldToFloor(clip, unwrappedTicks, headingDeg, wx, wz) {
+        const pm = clip.physicsMeta || {};
+        const ltype = pm.locomotionType || "static_land";
+        const radH = headingDeg * DEG2RAD;
+        const ch = Math.cos(radH);
+        const sh = Math.sin(radH);
+
+        if (ltype === "translate_fwd" || ltype === "water_cruise") {
+          const sHull = (pm.vHull || 0) * unwrappedTicks;
+          return {
+            x: wx * ch - wz * sh,
+            z: (wx * sh + wz * ch) + sHull
+          };
+        }
+        if (ltype === "turn_in_place") {
+          const com = pm.turnPivotLocal || [0.0, -0.08];
+          const pivWx = com[0] * ch + com[1] * sh;
+          const pivWz = -com[0] * sh + com[1] * ch;
+          const floorAng = (headingDeg - (pm.omegaHullDeg || 0) * unwrappedTicks) * DEG2RAD;
+          const cf = Math.cos(floorAng);
+          const sf = Math.sin(floorAng);
+          const dwx = wx - pivWx;
+          const dwz = wz - pivWz;
+          return {
+            x: com[0] + (dwx * cf - dwz * sf),
+            z: com[1] + (dwx * sf + dwz * cf)
+          };
+        }
+        return { x: wx * ch - wz * sh, z: wx * sh + wz * ch };
+      },
+
+      drawPhysicsSupportOverlay(ctx, cam, worldPoses, physInfo) {
+        if (!physInfo || physInfo.isWaterMode) return;
+        const dpr = cam.dpr;
+        ctx.save();
+
+        // 1. Swinging feet: ground shadow + vertical/radial drop-line to elevated foot tip
+        (physInfo.legs || []).forEach((lg) => {
+          const footSc = this.worldToScreen(cam, lg.footX, lg.footZ);
+          if (!lg.grounded) {
+            const shSc = this.worldToScreen(cam, lg.shadowX, lg.shadowZ);
+            ctx.fillStyle = "rgba(5, 8, 15, 0.52)";
+            ctx.beginPath();
+            ctx.ellipse(shSc.x, shSc.y, 6.5 * dpr, 4.2 * dpr, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgba(229, 206, 40, 0.85)";
+            ctx.lineWidth = 1.6 * dpr;
+            ctx.setLineDash([4 * dpr, 3 * dpr]);
+            ctx.beginPath();
+            ctx.moveTo(shSc.x, shSc.y);
+            ctx.lineTo(footSc.x, footSc.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#e5ce28";
+            ctx.strokeStyle = "#090d16";
+            ctx.lineWidth = 1.4 * dpr;
+            ctx.beginPath();
+            ctx.arc(footSc.x, footSc.y, 4.2 * dpr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+        });
+
+        // 2. Convex Support Polygon connecting all grounded feet
+        const poly = physInfo.supportPolygon || [];
+        if (poly.length >= 3) {
+          const stable = physInfo.comStability && physInfo.comStability.inside;
+          ctx.fillStyle = stable ? "rgba(66, 232, 150, 0.13)" : "rgba(255, 86, 102, 0.16)";
+          ctx.strokeStyle = stable ? "rgba(66, 232, 150, 0.88)" : "rgba(255, 86, 102, 0.92)";
+          ctx.lineWidth = 2.0 * dpr;
+          ctx.beginPath();
+          poly.forEach((pt, idx) => {
+            const sc = this.worldToScreen(cam, pt.x, pt.z);
+            if (idx === 0) ctx.moveTo(sc.x, sc.y);
+            else ctx.lineTo(sc.x, sc.y);
+          });
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        // 3. Grounded foot world-lock anchor pins
+        (physInfo.legs || []).forEach((lg) => {
+          if (!lg.grounded) return;
+          const sc = this.worldToScreen(cam, lg.footX, lg.footZ);
+          ctx.strokeStyle = "#42e896";
+          ctx.lineWidth = 1.8 * dpr;
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, 7.2 * dpr, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(sc.x - 10 * dpr, sc.y);
+          ctx.lineTo(sc.x + 10 * dpr, sc.y);
+          ctx.moveTo(sc.x, sc.y - 10 * dpr);
+          ctx.lineTo(sc.x, sc.y + 10 * dpr);
+          ctx.stroke();
+
+          ctx.fillStyle = "#42e896";
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, 2.8 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 4. Hull Center of Mass (CoM) projection crosshair & shortest stability margin vector
+        if (physInfo.comWorld) {
+          const comSc = this.worldToScreen(cam, physInfo.comWorld.x, physInfo.comWorld.z);
+          if (physInfo.comStability && poly.length >= 3) {
+            const edgeSc = this.worldToScreen(cam, physInfo.comStability.closestX, physInfo.comStability.closestZ);
+            ctx.strokeStyle = "rgba(60, 242, 255, 0.68)";
+            ctx.lineWidth = 1.4 * dpr;
+            ctx.setLineDash([3 * dpr, 3 * dpr]);
+            ctx.beginPath();
+            ctx.moveTo(comSc.x, comSc.y);
+            ctx.lineTo(edgeSc.x, edgeSc.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+
+          ctx.fillStyle = "#e5ce28";
+          ctx.strokeStyle = "#090d16";
+          ctx.lineWidth = 2.0 * dpr;
+          ctx.beginPath();
+          ctx.arc(comSc.x, comSc.y, 6.2 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(comSc.x - 11 * dpr, comSc.y);
+          ctx.lineTo(comSc.x + 11 * dpr, comSc.y);
+          ctx.moveTo(comSc.x, comSc.y - 11 * dpr);
+          ctx.lineTo(comSc.x, comSc.y + 11 * dpr);
+          ctx.stroke();
+
+          ctx.font = `bold ${Math.round(10.5 * dpr)}px Consolas, monospace`;
+          ctx.fillStyle = "#e5ce28";
+          ctx.textAlign = "left";
+          ctx.fillText("CoM", comSc.x + 9 * dpr, comSc.y - 7 * dpr);
+        }
+
+        ctx.restore();
+      },
+
+      // =======================================================================
+      // MODE 1: CLIP INSPECTOR STEP & RENDER
+      // =======================================================================
+      stepAndRenderInspector(ctx, cw, ch, dpr, baseTicks) {
+        const clip = this.bundle.clips[this.activeClipIdx];
+        if (!clip) return;
+
+        const dtTicks = this.playing ? baseTicks * this.speed : 0.0;
+        if (this.autoSpin && dtTicks > 0) {
+          this.setHeading(this.headingDeg + dtTicks * 0.75);
+        }
+
+        const prevClipTick = this.clipTick;
+        if (dtTicks > 0) {
+          const nextTick = this.clipTick + dtTicks;
+          if (clip.loop) {
+            if (nextTick >= clip.durationTicks) {
+              this.inspectorCycleCount += Math.floor(nextTick / clip.durationTicks);
+              if (this.contractStageOverride === 0) {
+                this.updateContractPreviewBox((this.inspectorCycleCount % 5) + 1);
+              }
+            }
+            this.clipTick = nextTick % clip.durationTicks;
+            this.inspectorUnwrappedTicks += dtTicks;
+          } else {
+            this.clipTick = Math.min(clip.durationTicks, nextTick);
+            this.inspectorUnwrappedTicks = this.clipTick;
+          }
+          document.getElementById("timelineSlider").value = this.clipTick;
+        }
+
+        const pct = Math.round((this.clipTick / Math.max(1, clip.durationTicks)) * 100);
+        document.getElementById("tickReadout").textContent =
+          `TICK ${this.clipTick.toFixed(1).padStart(4, "0")} / ${clip.durationTicks} (${pct}%)`;
+
+        const ppm = 76.0 * this.camZoom;
+        const cam = {
+          cx: cw * 0.5,
+          cy: ch * 0.52,
+          x: this.camPanX,
+          z: this.camPanZ,
+          ppm: ppm,
+          dpr: dpr
+        };
+
+        // Update mouse world coords
+        this.mouseWorldX = cam.x + (this.mouseX - cam.cx) / cam.ppm;
+        this.mouseWorldZ = cam.z - (this.mouseY - cam.cy) / cam.ppm;
+
+        // 1. Draw Inspector Environment Backdrop + Scrolling/Rotating Floor Grid
+        this.drawInspectorBackdrop(ctx, cw, ch, dpr, cam, clip);
+
+        // 2. Evaluate poses + crossfade
+        let localPoses = this.evaluateClipLocalPoses(clip, this.clipTick);
+        const isBlending = Boolean(this.useCrossFade && this.blendFromPoses && this.blendElapsed < this.blendDuration);
+        if (isBlending) {
+          this.blendElapsed += Math.max(0.25, dtTicks);
+          const bt = applyEasing(this.blendElapsed / this.blendDuration, "SmoothStep");
+          for (let i = 0; i < localPoses.length; i++) {
+            localPoses[i] = lerpLocalPose(this.blendFromPoses[i], localPoses[i], bt);
+          }
+          this.inspectorStanceAnchors = {};
+        }
+
+        // Chrono teleport root position jump in Clip 10
+        let rootXZ = { x: 0, z: 0 };
+        if (clip.vfxMode === "chrono_teleport") {
+          rootXZ = (this.clipTick < 26) ? { x: -2.0, z: -0.9 } : { x: 1.8, z: 0.8 };
+        }
+
+        // Optional cursor turret tracking or clip target tracking
+        const manualFire = this.inspectorClickFire && this.mouseDownLeft;
+        if (this.inspectorCursorAim || manualFire) {
+          this.applyDualArmTurretAiming(localPoses, rootXZ, this.headingDeg, this.mouseWorldX, this.mouseWorldZ, Math.max(0.4, dtTicks), 1.0);
+        }
+
+        // Trigger turret recoil pulses on firing clips or manual fire
+        const recoilOffsets = {};
+        const podL = this.bundle.rig.roleMap.tesla_pod_left;
+        const podR = this.bundle.rig.roleMap.tesla_pod_right;
+        if ((clip.vfxMode === "twin_tesla" && this.clipTick >= 8 && this.clipTick <= 40) || manualFire) {
+          if (Math.floor(this.continuousTicks) % 8 === 0 && dtTicks > 0) {
+            if (podL !== undefined) this.recoils[podL].queueImpulse(this.bundle.rig.nodes[podL].turretRecoil, this.headingDeg, 1.0);
+            if (podR !== undefined) this.recoils[podR].queueImpulse(this.bundle.rig.nodes[podR].turretRecoil, this.headingDeg, 1.0);
+          }
+        }
+        this.bundle.rig.nodes.forEach((n, idx) => {
+          recoilOffsets[idx] = this.recoils[idx].stepAndEvaluate(dtTicks, this.headingDeg + (n.baseAngle || 0) + localPoses[idx].angle);
+        });
+
+        const worldPoses = solveWorldPoses(this.bundle.rig, rootXZ, this.headingDeg, localPoses, this.missingMask, 1.0, recoilOffsets);
+
+        // Compute live Inspector Hexapod Physics State, Floor Dust Marks & Support Polygon
+        const pm = clip.physicsMeta || {};
+        const stanceWins = pm.stanceWindows || {};
+        const isWater = clip.isWaterMode || (clip.vfxMode === "morph_to_water" && this.clipTick >= 42) || (clip.vfxMode === "morph_to_land" && this.clipTick <= 10);
+        const physLegs = [];
+        const groundedWorldPts = [];
+        let maxFootSlip = 0.0;
+
+        if (!clip.isWaterMode && this.bundle.rig.legIkMeta) {
+          LEG_IDS_ORDERED.forEach((lid) => {
+            const meta = this.bundle.rig.legIkMeta[lid];
+            const tp = worldPoses[meta.tibiaIndex];
+            const fp = worldPoses[meta.femurIndex];
+            if (!tp || !tp.visible) return;
+            const fpt = uvToWorldXZ(tp, meta.footTipUV[0], meta.footTipUV[1]);
+            const wins = stanceWins[lid] || [];
+            const grounded = isTickInStanceWindow(wins, this.clipTick, 1e-3);
+            const floorPt = this.inspectorWorldToFloor(clip, this.inspectorUnwrappedTicks, this.headingDeg, fpt.x, fpt.z);
+
+            if (grounded && !isBlending && clip.vfxMode !== "chrono_teleport") {
+              if (!this.inspectorStanceAnchors[lid]) {
+                this.inspectorStanceAnchors[lid] = { x: floorPt.x, z: floorPt.z };
+                if (dtTicks > 0 && (pm.locomotionType === "translate_fwd" || pm.locomotionType === "turn_in_place" || pm.locomotionType === "morph_to_land")) {
+                  this.inspectorFloorMarks.push({ fx: floorPt.x, fz: floorPt.z, age: 0, maxAge: 42 });
+                }
+              } else {
+                const slip = Math.hypot(floorPt.x - this.inspectorStanceAnchors[lid].x, floorPt.z - this.inspectorStanceAnchors[lid].z);
+                if (slip > maxFootSlip) maxFootSlip = slip;
+              }
+              groundedWorldPts.push({ x: fpt.x, z: fpt.z });
+            } else {
+              delete this.inspectorStanceAnchors[lid];
+            }
+
+            const flapLift01 = fp ? clamp01((1.0 - fp.flapCosPsi) / Math.max(1e-4, 1.0 - Math.cos(18.0 * DEG2RAD))) : 0.0;
+            // Ground shadow lies outward from hip along flat projection + sun drop
+            const toOutX = fpt.x - (fp ? fp.flatJointX : 0);
+            const toOutZ = fpt.z - (fp ? fp.flatJointZ : 0);
+            const outLen = Math.max(1e-4, Math.hypot(toOutX, toOutZ));
+            const shWx = grounded ? fpt.x : (fpt.x + (toOutX / outLen) * (0.11 * flapLift01) + 0.05 * flapLift01);
+            const shWz = grounded ? fpt.z : (fpt.z + (toOutZ / outLen) * (0.11 * flapLift01) - 0.11 * flapLift01);
+
+            physLegs.push({
+              id: lid,
+              grounded: grounded,
+              footX: fpt.x,
+              footZ: fpt.z,
+              shadowX: shWx,
+              shadowZ: shWz,
+              lift01: flapLift01
+            });
+          });
+        }
+
+        // Step & render floor-locked FootstepDust rings
+        if (dtTicks > 0) {
+          this.inspectorFloorMarks = this.inspectorFloorMarks.filter((m) => {
+            m.age += dtTicks;
+            return m.age < m.maxAge;
+          });
+        }
+        this.inspectorFloorMarks.forEach((m) => {
+          const wpt = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, m.fx, m.fz);
+          const sc = this.worldToScreen(cam, wpt.x, wpt.z);
+          const u = m.age / m.maxAge;
+          ctx.save();
+          ctx.strokeStyle = `rgba(215, 226, 242, ${((1.0 - u) * 0.55).toFixed(3)})`;
+          ctx.fillStyle = `rgba(165, 185, 212, ${((1.0 - u) * 0.18).toFixed(3)})`;
+          ctx.lineWidth = 1.6 * dpr;
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, (0.12 + u * 0.28) * cam.ppm * dpr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        const hullPose = worldPoses[0];
+        const comLocal = this.bundle.rig.hullComLocal || [0.0, -0.08];
+        const comWorld = hullPose ? {
+          x: hullPose.flatJointX + (comLocal[0] * hullPose.cosTheta + comLocal[1] * hullPose.sinTheta),
+          z: hullPose.flatJointZ + (-comLocal[0] * hullPose.sinTheta + comLocal[1] * hullPose.cosTheta)
+        } : { x: 0, z: -0.08 };
+        const supportPoly = convexHull2D(groundedWorldPts);
+        const comStability = evaluateComStabilityAgainstHull(comWorld, supportPoly);
+
+        // 3. Under-hull water wakes / ripples
+        this.drawUnderHullVfx(ctx, cam, clip, this.clipTick, rootXZ, this.headingDeg);
+
+        // 4. Render sorted GCF Rig
+        this.renderRigSorted(ctx, cam, worldPoses, clip);
+
+        // 5. Over-hull Clip VFX
+        this.drawInspectorClipForegroundVfx(ctx, cam, clip, this.clipTick, worldPoses, rootXZ, manualFire);
+
+        // 6. Physics & Support Polygon + Debug Overlays
+        if (this.showPhysics && !isWater && physLegs.length > 0) {
+          this.drawPhysicsSupportOverlay(ctx, cam, worldPoses, {
+            isWaterMode: isWater,
+            legs: physLegs,
+            supportPolygon: supportPoly,
+            comWorld: comWorld,
+            comStability: comStability
+          });
+        }
+        if (this.showSectors) this.drawTurretSectors(ctx, cam, worldPoses, this.headingDeg);
+        if (this.showPivots) this.drawDebugPivots(ctx, cam, worldPoses);
+
+        // Telemetry update
+        if (isWater) {
+          document.getElementById("hudTelemetry").innerHTML = `
+            <span>HEADING: ${Math.round(this.headingDeg)} deg</span>
+            <span>MODE: BOAT (LEGS 100% TUCKED)</span>
+            <span>WATER LEG LEAK: 0 PX</span>
+          `;
+        } else {
+          const stabTxt = groundedWorldPts.length >= 3
+            ? (comStability.inside
+                ? `INSIDE (+${comStability.margin.toFixed(2)} c)`
+                : `OUTSIDE (${comStability.margin.toFixed(2)} c)`)
+            : "AERIAL / MORPH";
+          document.getElementById("hudTelemetry").innerHTML = `
+            <span>GROUNDED FEET: ${groundedWorldPts.length}/6</span>
+            <span style="color:var(--ok-green);">MAX FOOT SLIP: ${maxFootSlip.toFixed(3)} c</span>
+            <span style="color:${comStability.inside || groundedWorldPts.length < 3 ? "var(--ok-green)" : "var(--danger-red)"};">CoM STABILITY: ${stabTxt}</span>
+          `;
+        }
+      },
+
+      drawInspectorBackdrop(ctx, cw, ch, dpr, cam, clip) {
+        const w = cw * dpr;
+        const h = ch * dpr;
+        const isWater = clip.isWaterMode;
+        const isMorph = clip.category === "morph" || clip.vfxMode === "chrono_teleport";
+
+        if (isMorph) {
+          ctx.fillStyle = "#141a24";
+          ctx.fillRect(0, 0, w, h);
+          const shoreY = (cam.cy - (0.0 - cam.z) * cam.ppm) * dpr;
+          const grad = ctx.createLinearGradient(0, shoreY - 40 * dpr, 0, h);
+          grad.addColorStop(0, "#1d2733");
+          grad.addColorStop(0.18, "#163854");
+          grad.addColorStop(1, "#0b2239");
+          ctx.fillStyle = grad;
+          if (clip.vfxMode === "morph_to_water") {
+            ctx.fillRect(0, 0, w, shoreY + 35 * dpr);
+          } else {
+            ctx.fillRect(0, shoreY - 15 * dpr, w, h - (shoreY - 15 * dpr));
+          }
+        } else if (isWater) {
+          const grad = ctx.createRadialGradient(w * 0.5, h * 0.5, 20, w * 0.5, h * 0.5, Math.max(w, h) * 0.65);
+          grad.addColorStop(0, "#133552");
+          grad.addColorStop(1, "#08192b");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+        } else {
+          const grad = ctx.createRadialGradient(w * 0.5, h * 0.5, 20, w * 0.5, h * 0.5, Math.max(w, h) * 0.65);
+          grad.addColorStop(0, "#1a2030");
+          grad.addColorStop(1, "#0d111b");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        if (this.showGrid) {
+          this.drawInspectorScrollingFloorGrid(ctx, cw, ch, dpr, cam, clip);
+        }
+      },
+
+      drawInspectorScrollingFloorGrid(ctx, cw, ch, dpr, cam, clip) {
+        const step = cam.ppm * dpr;
+        if (step < 14) return;
+
+        // Compute floor-space bounding box of visible viewport corners
+        const cornersW = [
+          { x: cam.x - (cw * 0.55) / cam.ppm, z: cam.z - (ch * 0.60) / cam.ppm },
+          { x: cam.x + (cw * 0.55) / cam.ppm, z: cam.z - (ch * 0.60) / cam.ppm },
+          { x: cam.x + (cw * 0.55) / cam.ppm, z: cam.z + (ch * 0.60) / cam.ppm },
+          { x: cam.x - (cw * 0.55) / cam.ppm, z: cam.z + (ch * 0.60) / cam.ppm }
+        ];
+        let minFx = 1e9, maxFx = -1e9, minFz = 1e9, maxFz = -1e9;
+        cornersW.forEach((cwPt) => {
+          const fp = this.inspectorWorldToFloor(clip, this.inspectorUnwrappedTicks, this.headingDeg, cwPt.x, cwPt.z);
+          if (fp.x < minFx) minFx = fp.x;
+          if (fp.x > maxFx) maxFx = fp.x;
+          if (fp.z < minFz) minFz = fp.z;
+          if (fp.z > maxFz) maxFz = fp.z;
+        });
+
+        const gx0 = Math.floor(minFx) - 1;
+        const gx1 = Math.ceil(maxFx) + 1;
+        const gz0 = Math.floor(minFz) - 1;
+        const gz1 = Math.ceil(maxFz) + 1;
+
+        ctx.save();
+        ctx.strokeStyle = "rgba(140, 180, 238, 0.12)";
+        ctx.lineWidth = 1.0 * dpr;
+        ctx.beginPath();
+        for (let gx = gx0; gx <= gx1; gx++) {
+          const p0 = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, gx, gz0);
+          const p1 = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, gx, gz1);
+          const s0 = this.worldToScreen(cam, p0.x, p0.z);
+          const s1 = this.worldToScreen(cam, p1.x, p1.z);
+          ctx.moveTo(s0.x, s0.y);
+          ctx.lineTo(s1.x, s1.y);
+        }
+        for (let gz = gz0; gz <= gz1; gz++) {
+          const p0 = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, gx0, gz);
+          const p1 = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, gx1, gz);
+          const s0 = this.worldToScreen(cam, p0.x, p0.z);
+          const s1 = this.worldToScreen(cam, p1.x, p1.z);
+          ctx.moveTo(s0.x, s0.y);
+          ctx.lineTo(s1.x, s1.y);
+        }
+        ctx.stroke();
+
+        // Subtle intersection crosses on floor grid so zero-slip foot lock is visually unmistakable
+        ctx.fillStyle = "rgba(110, 215, 255, 0.22)";
+        for (let gx = gx0; gx <= gx1; gx++) {
+          for (let gz = gz0; gz <= gz1; gz++) {
+            const pw = this.inspectorFloorToWorld(clip, this.inspectorUnwrappedTicks, this.headingDeg, gx, gz);
+            const sc = this.worldToScreen(cam, pw.x, pw.z);
+            ctx.fillRect(sc.x - 1.5 * dpr, sc.y - 1.5 * dpr, 3.0 * dpr, 3.0 * dpr);
+          }
+        }
+        ctx.restore();
+      },
+
+      drawRimWorldGrid(ctx, cw, ch, dpr, cam) {
+        const step = cam.ppm * dpr;
+        if (step < 14) return;
+        ctx.save();
+        ctx.strokeStyle = "rgba(140, 175, 230, 0.08)";
+        ctx.lineWidth = 1;
+
+        const minCellX = Math.floor(cam.x - (cw * 0.5) / cam.ppm) - 1;
+        const maxCellX = Math.ceil(cam.x + (cw * 0.5) / cam.ppm) + 1;
+        const minCellZ = Math.floor(cam.z - (ch * 0.55) / cam.ppm) - 1;
+        const maxCellZ = Math.ceil(cam.z + (ch * 0.55) / cam.ppm) + 1;
+
+        ctx.beginPath();
+        for (let gx = minCellX; gx <= maxCellX; gx++) {
+          const sx = (cam.cx + (gx - cam.x) * cam.ppm) * dpr;
+          ctx.moveTo(sx, 0);
+          ctx.lineTo(sx, ch * dpr);
+        }
+        for (let gz = minCellZ; gz <= maxCellZ; gz++) {
+          const sy = (cam.cy - (gz - cam.z) * cam.ppm) * dpr;
+          ctx.moveTo(0, sy);
+          ctx.lineTo(cw * dpr, sy);
+        }
+        ctx.stroke();
+        ctx.restore();
+      },
+
+      worldToScreen(cam, wx, wz) {
+        return {
+          x: (cam.cx + (wx - cam.x) * cam.ppm) * cam.dpr,
+          y: (cam.cy - (wz - cam.z) * cam.ppm) * cam.dpr
+        };
+      },
+
+      renderRigSorted(ctx, cam, worldPoses, clip) {
+        // Soft ground/water shadow underneath hull
+        const hullPose = worldPoses[0];
+        if (hullPose && hullPose.visible) {
+          const sc = this.worldToScreen(cam, hullPose.jointX + 0.16, hullPose.jointZ - 0.18);
+          ctx.save();
+          ctx.translate(sc.x, sc.y);
+          ctx.rotate(hullPose.worldAngleDeg * DEG2RAD);
+          ctx.fillStyle = "rgba(0, 0, 0, 0.36)";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, cam.ppm * cam.dpr * 1.18, cam.ppm * cam.dpr * 1.88, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        const drawOrder = [...worldPoses].filter((p) => p.visible).sort((a, b) => {
+          if (Math.abs(a.layerOffset - b.layerOffset) > 1e-4) return a.layerOffset - b.layerOffset;
+          return a.nodeIndex - b.nodeIndex;
+        });
+
+        // Dynamic glow pulse intensity
+        let glowPulse = 0.78 + 0.22 * Math.sin(this.continuousTicks * 0.09);
+        if (clip && clip.vfxMode === "hit_downed_death") {
+          if (this.clipTick >= 36 && this.clipTick < 76) glowPulse = 0.15 * Math.abs(Math.sin(this.clipTick * 0.6));
+          else if (this.clipTick >= 76 && this.clipTick < 92) glowPulse = 1.0;
+          else if (this.clipTick >= 92) glowPulse = 0.05;
+        } else if (clip && (clip.vfxMode === "water_overload" || clip.vfxMode === "twin_tesla" || clip.vfxMode === "therapy_shock")) {
+          glowPulse = 1.0;
+        }
+
+        // Strict Water Boat Mode safety guard: when clip.isWaterMode is true, leg layers are 100% tucked under HullMain
+        for (let i = 0; i < drawOrder.length; i++) {
+          const pose = drawOrder[i];
+          const def = pose.def;
+          const baseImg = this.images[def.texFile];
+          drawBoneSprite(ctx, baseImg, pose, cam, 1.0, "source-over");
+
+          if (this.showGlow && def.glowFile && this.images[def.glowFile] && glowPulse > 0.02) {
+            drawBoneSprite(ctx, this.images[def.glowFile], pose, cam, clamp01(glowPulse), "lighter");
+          }
+        }
+      },
+
+      drawUnderHullVfx(ctx, cam, clip, tick, rootXZ, headingDeg) {
+        const mode = clip.vfxMode;
+        const c = this.worldToScreen(cam, rootXZ.x, rootXZ.z);
+        const rad = headingDeg * DEG2RAD;
+        const ppm = cam.ppm * cam.dpr;
+
+        if (mode === "water_idle" || mode === "water_overload") {
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(rad);
+          for (let r = 0; r < 3; r++) {
+            const ph = ((this.continuousTicks * 0.015 + r / 3) % 1.0);
+            const alpha = (1.0 - ph) * 0.38;
+            ctx.strokeStyle = `rgba(110, 232, 255, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = 1.8 * cam.dpr;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, ppm * (1.05 + ph * 0.75), ppm * (1.78 + ph * 0.85), 0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        } else if (mode === "water_cruise") {
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(rad);
+
+          // V-shaped Kelvin bow wave
+          for (let w = 0; w < 2; w++) {
+            const spread = 0.35 + w * 0.18;
+            const bowY = -ppm * 1.56 + w * ppm * 0.22;
+            ctx.strokeStyle = w === 0 ? "rgba(185, 248, 255, 0.78)" : "rgba(85, 215, 255, 0.42)";
+            ctx.lineWidth = (3.0 - w) * cam.dpr;
+            ctx.beginPath();
+            ctx.moveTo(-ppm * (1.35 + spread), ppm * 1.65);
+            ctx.quadraticCurveTo(-ppm * 0.62, bowY + ppm * 0.85, 0, bowY);
+            ctx.quadraticCurveTo(ppm * 0.62, bowY + ppm * 0.85, ppm * (1.35 + spread), ppm * 1.65);
+            ctx.stroke();
+          }
+
+          // Twin stern waterjet foam trails
+          [-0.25, 0.25].forEach((sideX, sIdx) => {
+            for (let k = 0; k < 9; k++) {
+              const u = ((this.continuousTicks * 0.08 + k / 9 + sIdx * 0.5) % 1.0);
+              const fy = ppm * (1.42 + u * 2.15);
+              const fx = ppm * sideX * (1.0 + u * 0.45) + Math.sin(u * 9 + k) * ppm * 0.06;
+              const radFoam = ppm * (0.12 + u * 0.24);
+              ctx.fillStyle = `rgba(210, 250, 255, ${((1.0 - u) * 0.55).toFixed(3)})`;
+              ctx.beginPath();
+              ctx.arc(fx, fy, radFoam, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+          ctx.restore();
+        } else if (mode === "morph_to_water" && tick >= 22) {
+          const u = clamp01((tick - 22) / 30.0);
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(rad);
+          ctx.strokeStyle = `rgba(175, 246, 255, ${((1.0 - u) * 0.85).toFixed(3)})`;
+          ctx.lineWidth = (4.2 * (1.0 - u * 0.6)) * cam.dpr;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ppm * (1.0 + u * 1.45), ppm * (1.6 + u * 1.55), 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      },
+
+      getMuzzleScreenPos(cam, worldPoses, roleName) {
+        const idx = this.bundle.rig.roleMap[roleName];
+        if (idx === undefined || !worldPoses[idx] || !worldPoses[idx].visible) return null;
+        const p = worldPoses[idx];
+        const muv = p.def.resolvedMuzzleUV || [0.5, 0.9];
+        const wpt = uvToWorldXZ(p, muv[0], muv[1]);
+        return { world: wpt, screen: this.worldToScreen(cam, wpt.x, wpt.z) };
+      },
+
+      drawDummyPawn(ctx, cam, wx, wz, opts) {
+        const sc = this.worldToScreen(cam, wx, wz);
+        const r = cam.ppm * cam.dpr * (opts.isAnimal ? 0.46 : 0.36);
+
+        ctx.save();
+        ctx.translate(sc.x, sc.y);
+        ctx.rotate((opts.jitterDeg || 0) * DEG2RAD);
+
+        // Shadow
+        ctx.fillStyle = "rgba(0,0,0,0.38)";
+        ctx.beginPath();
+        ctx.ellipse(0, r * 0.65, r * 0.95, r * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Body
+        ctx.fillStyle = opts.shocked && (Math.floor(this.continuousTicks / 2) % 2 === 0) ? "#aefaff" : (opts.color || "#90b8ff");
+        ctx.strokeStyle = "#10121c";
+        ctx.lineWidth = 2.2 * cam.dpr;
+        if (opts.isAnimal) {
+          ctx.beginPath();
+          ctx.roundRect(-r * 1.15, -r * 0.75, r * 2.3, r * 1.5, r * 0.55);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          // RimWorld torso + head silhouette with 4-way spin indicator
+          ctx.beginPath();
+          ctx.roundRect(-r * 0.72, -r * 0.35, r * 1.44, r * 1.25, r * 0.42);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = opts.shocked ? "#ffffff" : "#ffe6d2";
+          ctx.beginPath();
+          ctx.arc(0, -r * 0.68, r * 0.56, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Facing eye marker showing slow 4-way spin
+          const dir = opts.spinDir || 0; // 0:S, 1:W, 2:N, 3:E
+          if (dir !== 2) {
+            const ex = dir === 1 ? -r * 0.24 : (dir === 3 ? r * 0.24 : 0);
+            ctx.fillStyle = "#141826";
+            ctx.beginPath();
+            ctx.arc(ex - r * 0.14, -r * 0.68, r * 0.09, 0, Math.PI * 2);
+            ctx.arc(ex + r * 0.14, -r * 0.68, r * 0.09, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+
+        // Name & RimWorld STUN / Hediff callout
+        ctx.save();
+        ctx.font = `bold ${Math.round(11 * cam.dpr)}px "Microsoft YaHei UI", sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#e6eef8";
+        ctx.fillText(opts.label || "Target", sc.x, sc.y + r * 1.55);
+
+        if (opts.stunPct > 0) {
+          const bw = 46 * cam.dpr, bh = 5 * cam.dpr;
+          ctx.fillStyle = "rgba(0,0,0,0.75)";
+          ctx.fillRect(sc.x - bw * 0.5, sc.y - r * 1.75, bw, bh);
+          ctx.fillStyle = "#f5d43b";
+          ctx.fillRect(sc.x - bw * 0.5, sc.y - r * 1.75, bw * clamp01(opts.stunPct), bh);
+        }
+
+        if (opts.calloutTitle) {
+          const pad = 6 * cam.dpr;
+          ctx.font = `bold ${Math.round(11.5 * cam.dpr)}px "Microsoft YaHei UI", sans-serif`;
+          const tw1 = ctx.measureText(opts.calloutTitle).width;
+          ctx.font = `${Math.round(10.5 * cam.dpr)}px "Microsoft YaHei UI", sans-serif`;
+          const subText = opts.calloutSub || "";
+          const tw2 = subText ? ctx.measureText(subText).width : 0;
+          const boxW = Math.max(tw1, tw2) + pad * 2.2;
+          const boxH = (subText ? 36 : 22) * cam.dpr;
+          const bx = sc.x - boxW * 0.5;
+          const by = sc.y - r * 2.05 - boxH;
+
+          ctx.fillStyle = "rgba(12, 17, 30, 0.90)";
+          ctx.strokeStyle = opts.calloutBorder || "#3cf2ff";
+          ctx.lineWidth = 1.5 * cam.dpr;
+          ctx.beginPath();
+          ctx.roundRect(bx, by, boxW, boxH, 4 * cam.dpr);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.font = `bold ${Math.round(11.5 * cam.dpr)}px "Microsoft YaHei UI", sans-serif`;
+          ctx.fillStyle = opts.calloutBorder || "#3cf2ff";
+          ctx.fillText(opts.calloutTitle, sc.x, by + 15 * cam.dpr);
+          if (subText) {
+            ctx.font = `${Math.round(10.5 * cam.dpr)}px "Microsoft YaHei UI", sans-serif`;
+            ctx.fillStyle = "#eef5ff";
+            ctx.fillText(subText, sc.x, by + 30 * cam.dpr);
+          }
+        }
+        ctx.restore();
+      },
+
+      drawInspectorClipForegroundVfx(ctx, cam, clip, tick, worldPoses, rootXZ, manualFire) {
+        const mL = this.getMuzzleScreenPos(cam, worldPoses, "tesla_pod_left");
+        const mR = this.getMuzzleScreenPos(cam, worldPoses, "tesla_pod_right");
+        const rad = this.headingDeg * DEG2RAD;
+        const fwdX = Math.sin(rad);
+        const fwdZ = Math.cos(rad);
+        const seedBase = Math.floor(this.continuousTicks * 0.5);
+
+        if (manualFire && mL && mR) {
+          const tgt = this.worldToScreen(cam, this.mouseWorldX, this.mouseWorldZ);
+          drawLightningArc(ctx, mL.screen.x, mL.screen.y, tgt.x, tgt.y, seedBase + 11, { widthScale: cam.dpr });
+          drawLightningArc(ctx, mR.screen.x, mR.screen.y, tgt.x, tgt.y, seedBase + 29, { widthScale: cam.dpr });
+          this.drawImpactSparks(ctx, tgt.x, tgt.y, cam.dpr, seedBase);
+        }
+
+        switch (clip.vfxMode) {
+          case "twin_tesla": {
+            const tx = rootXZ.x + fwdX * 4.4;
+            const tz = rootXZ.z + fwdZ * 4.4;
+            const tgt = this.worldToScreen(cam, tx, tz);
+            if (tick >= 8 && tick <= 41 && mL && mR) {
+              drawLightningArc(ctx, mL.screen.x, mL.screen.y, tgt.x, tgt.y, seedBase + 3, { widthScale: cam.dpr });
+              drawLightningArc(ctx, mR.screen.x, mR.screen.y, tgt.x, tgt.y, seedBase + 17, { widthScale: cam.dpr });
+              this.drawImpactSparks(ctx, tgt.x, tgt.y, cam.dpr * 1.2, seedBase);
+            }
+            break;
+          }
+
+          case "chrono_teleport": {
+            const originSc = this.worldToScreen(cam, -2.0, -0.9);
+            const destSc = this.worldToScreen(cam, 1.8, 0.8);
+            if (tick <= 28) {
+              const p = clamp01(tick / 24.0);
+              this.drawChronoSphereEffect(ctx, originSc.x, originSc.y, cam.ppm * cam.dpr * (1.85 - p * 1.15), 1.0 - p * 0.25, seedBase);
+            }
+            if (tick >= 20 && tick <= 34) {
+              drawLightningArc(ctx, originSc.x, originSc.y, destSc.x, destSc.y, seedBase + 7, { widthScale: cam.dpr * 1.25, sway: 28 });
+            }
+            if (tick >= 24 && tick <= 56) {
+              const u = clamp01((tick - 24) / 30.0);
+              this.drawChronoSphereEffect(ctx, destSc.x, destSc.y, cam.ppm * cam.dpr * (0.65 + u * 1.65), 1.0 - u, seedBase + 41);
+            }
+            break;
+          }
+
+          case "therapy_shock": {
+            const tx = rootXZ.x + fwdX * 4.2;
+            const tz = rootXZ.z + fwdZ * 4.2;
+            const tgt = this.worldToScreen(cam, tx, tz);
+            const shocking = tick < 76;
+            const stageIdx = this.contractStageOverride > 0
+              ? (this.contractStageOverride - 1)
+              : (this.inspectorCycleCount % 5);
+            const spinDir = shocking ? (Math.floor(tick / 16) % 4) : 0;
+            const jitter = shocking ? Math.sin(tick * 1.35) * 9.0 : 0;
+
+            if (shocking && mL && mR) {
+              drawLightningArc(ctx, mL.screen.x, mL.screen.y, tgt.x, tgt.y, seedBase + 5, {
+                widthScale: cam.dpr,
+                colorOuter: "rgba(195, 80, 255, 0.36)",
+                colorMid: "rgba(60, 242, 255, 0.9)"
+              });
+              drawLightningArc(ctx, mR.screen.x, mR.screen.y, tgt.x, tgt.y, seedBase + 23, {
+                widthScale: cam.dpr,
+                colorOuter: "rgba(195, 80, 255, 0.36)",
+                colorMid: "rgba(60, 242, 255, 0.9)"
+              });
+              this.drawImpactSparks(ctx, tgt.x, tgt.y, cam.dpr, seedBase + 9);
+            }
+
+            const shortStage = [
+              "第1次：禁与小5岁以上结婚（本人强烈意愿除外）",
+              "第2次：失去炼铜特征，遵守契约可能性 1000%",
+              "第3次：痛哭流涕面色潮红签约，行为仍有待观察",
+              "第4次：医疗记录研判已彻底根治，继续治疗无效",
+              "第5次：？你就是想电人玩是么？"
+            ][stageIdx];
+
+            this.drawDummyPawn(ctx, cam, tx, tz, {
+              label: "受试人形假人",
+              shocked: shocking,
+              spinDir: spinDir,
+              jitterDeg: jitter,
+              stunPct: shocking ? (1.0 - tick / 76.0) : 0,
+              calloutTitle: shocking ? "【炼铜癖治疗中】" : `【无慰契约】(第 ${stageIdx + 1} 次)`,
+              calloutSub: shocking ? "\"我...不会....哦齁齁齁齁\"" : shortStage,
+              calloutBorder: shocking ? "#ff6ad5" : "#e5ce28"
+            });
+            break;
+          }
+
+          case "water_overload": {
+            const c = this.worldToScreen(cam, rootXZ.x, rootXZ.z);
+            const ppm = cam.ppm * cam.dpr;
+            if (tick >= 22 && tick <= 78) {
+              const u = clamp01((tick - 22) / 52.0);
+              const radPx = ppm * (0.9 + u * 4.4);
+              ctx.save();
+              ctx.globalCompositeOperation = "lighter";
+              ctx.strokeStyle = `rgba(60, 242, 255, ${((1.0 - u) * 0.9).toFixed(3)})`;
+              ctx.lineWidth = (6.0 * (1.0 - u * 0.65)) * cam.dpr;
+              ctx.beginPath();
+              ctx.arc(c.x, c.y, radPx, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.restore();
+
+              // Radial surface chain lightning spokes
+              for (let s = 0; s < 6; s++) {
+                const a = (s / 6) * Math.PI * 2 + u * 0.6;
+                const ex = c.x + Math.cos(a) * radPx;
+                const ey = c.y + Math.sin(a) * radPx;
+                drawLightningArc(ctx, c.x, c.y, ex, ey, seedBase + s * 19, { widthScale: cam.dpr * 0.85, branches: false });
+              }
+            }
+
+            // Popping fish demo icons
+            if (tick >= 26) {
+              const fu = clamp01((tick - 26) / 48.0);
+              for (let f = 0; f < 5; f++) {
+                const ang = -0.8 + f * 0.42;
+                const r0 = 2.0, r1 = 4.3;
+                const fx = lerp(Math.cos(ang) * r0, Math.cos(ang) * r1, fu);
+                const fz = lerp(Math.sin(ang) * r0, Math.sin(ang) * r1, fu) + Math.sin(fu * Math.PI) * 1.35;
+                const fsc = this.worldToScreen(cam, fx, fz);
+                this.drawFishIcon(ctx, fsc.x, fsc.y, cam.dpr * 1.15, ang, f === 4 ? "toxfish" : "salmon");
+              }
+            }
+
+            // Water human & water animal shock demo
+            const shocking = tick >= 24 && tick < 70;
+            this.drawDummyPawn(ctx, cam, -3.1, 2.2, {
+              label: "水中人类",
+              shocked: shocking,
+              spinDir: shocking ? (Math.floor(tick / 14) % 4) : 0,
+              jitterDeg: shocking ? Math.sin(tick * 1.4) * 9 : 0,
+              stunPct: shocking ? 0.8 : 0,
+              calloutTitle: shocking ? "【炼铜癖治疗中】" : (tick >= 70 ? "【无慰契约】" : ""),
+              calloutSub: shocking ? "\"我...不会....哦齁齁齁齁\"" : (tick >= 70 ? "水中人类执行治疗契约" : ""),
+              calloutBorder: "#e5ce28"
+            });
+            this.drawDummyPawn(ctx, cam, 3.2, -2.0, {
+              label: "水中生物",
+              isAnimal: true,
+              color: "#b8cee8",
+              shocked: shocking,
+              jitterDeg: shocking ? Math.cos(tick * 1.5) * 9 : 0,
+              stunPct: shocking ? 0.8 : 0,
+              calloutTitle: shocking ? "【触电了】" : (tick >= 70 ? "【刚刚被电了】(2H)" : ""),
+              calloutSub: shocking ? "\"哦齁齁齁齁齁齁齁\"" : (tick >= 70 ? "\"酥酥麻麻的......\" 移速x95%" : ""),
+              calloutBorder: "#3cf2ff"
+            });
+            break;
+          }
+
+          case "hit_downed_death": {
+            const c = this.worldToScreen(cam, rootXZ.x, rootXZ.z);
+            if (tick >= 3 && tick <= 16) {
+              this.drawImpactSparks(ctx, c.x + 28 * cam.dpr, c.y - 34 * cam.dpr, cam.dpr * 1.5, seedBase);
+            }
+            if (tick >= 34 && tick <= 72) {
+              drawLightningArc(ctx, c.x - 45 * cam.dpr, c.y - 20 * cam.dpr, c.x + 45 * cam.dpr, c.y + 25 * cam.dpr, seedBase + 3, {
+                widthScale: cam.dpr * 0.85, branches: false
+              });
+            }
+            if (tick >= 88) {
+              const u = clamp01((tick - 88) / 30.0);
+              ctx.save();
+              ctx.globalCompositeOperation = "lighter";
+              ctx.fillStyle = `rgba(255, 165, 70, ${((1.0 - u) * 0.72).toFixed(3)})`;
+              ctx.beginPath();
+              ctx.arc(c.x, c.y, cam.ppm * cam.dpr * (0.5 + u * 2.1), 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+        }
+      },
+
+      drawChronoSphereEffect(ctx, sx, sy, radiusPx, alpha, seed) {
+        if (alpha <= 0.01 || radiusPx <= 2) return;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.strokeStyle = `rgba(95, 235, 255, ${(alpha * 0.88).toFixed(3)})`;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(sx, sy, radiusPx, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Geodesic latitude/longitude ellipses
+        for (let i = 1; i <= 2; i++) {
+          const ratio = i * 0.36;
+          ctx.strokeStyle = `rgba(170, 248, 255, ${(alpha * 0.55).toFixed(3)})`;
+          ctx.beginPath();
+          ctx.ellipse(sx, sy, radiusPx, radiusPx * ratio, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(sx, sy, radiusPx * ratio, radiusPx, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+        drawLightningArc(ctx, sx - radiusPx * 0.85, sy, sx + radiusPx * 0.85, sy, seed + 5, { branches: false, sway: 14 });
+      },
+
+      drawImpactSparks(ctx, sx, sy, scale, seed) {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.fillStyle = "rgba(225, 252, 255, 0.92)";
+        ctx.beginPath();
+        ctx.arc(sx, sy, 7 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(90, 240, 255, 0.9)";
+        ctx.lineWidth = 2 * scale;
+        for (let i = 0; i < 7; i++) {
+          const a = hashRand(seed + i * 7.7) * Math.PI * 2;
+          const r = (10 + hashRand(seed + i * 3.1) * 18) * scale;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(sx + Math.cos(a) * r, sy + Math.sin(a) * r);
+          ctx.stroke();
+        }
+        ctx.restore();
+      },
+
+      drawFishIcon(ctx, sx, sy, scale, angleRad, species) {
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.rotate(angleRad);
+        const col = species === "toxfish" ? "#8be858" : (species === "salmon" ? "#ff9278" : "#7fd4ff");
+        ctx.fillStyle = col;
+        ctx.strokeStyle = "#101522";
+        ctx.lineWidth = 1.4 * scale;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 9 * scale, 4.5 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-8 * scale, 0);
+        ctx.lineTo(-13 * scale, -4.5 * scale);
+        ctx.lineTo(-13 * scale, 4.5 * scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      },
+
+      drawTurretSectors(ctx, cam, worldPoses, rootHeadingDeg) {
+        const rig = this.bundle.rig;
+        ["tesla_pod_left", "tesla_pod_right"].forEach((role) => {
+          const idx = rig.roleMap[role];
+          if (idx === undefined || !worldPoses[idx] || !worldPoses[idx].visible) return;
+          const p = worldPoses[idx];
+          const sc = this.worldToScreen(cam, p.jointX, p.jointZ);
+          const arcDeg = p.def.maxTurretAimAngleDeg || 125;
+          const centerCanvasRad = (rootHeadingDeg - 90.0) * DEG2RAD;
+          const halfRad = arcDeg * DEG2RAD;
+          const rPx = cam.ppm * cam.dpr * 2.5;
+
+          ctx.save();
+          ctx.fillStyle = "rgba(60, 242, 255, 0.08)";
+          ctx.strokeStyle = "rgba(60, 242, 255, 0.52)";
+          ctx.lineWidth = 1.4 * cam.dpr;
+          ctx.beginPath();
+          ctx.moveTo(sc.x, sc.y);
+          ctx.arc(sc.x, sc.y, rPx, centerCanvasRad - halfRad, centerCanvasRad + halfRad);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Live barrel aim ray
+          const muv = p.def.resolvedMuzzleUV || [0.5, 0.9];
+          const mw = uvToWorldXZ(p, muv[0], muv[1]);
+          const ms = this.worldToScreen(cam, mw.x, mw.z);
+          ctx.strokeStyle = "#e5ce28";
+          ctx.setLineDash([4 * cam.dpr, 3 * cam.dpr]);
+          ctx.beginPath();
+          ctx.moveTo(sc.x, sc.y);
+          ctx.lineTo(ms.x, ms.y);
+          ctx.stroke();
+          ctx.restore();
+        });
+      },
+
+      drawDebugPivots(ctx, cam, worldPoses) {
+        ctx.save();
+        worldPoses.forEach((p) => {
+          if (!p.visible) return;
+          const sc = this.worldToScreen(cam, p.jointX, p.jointZ);
+          const pIdx = p.def.parentRuntimeIndex;
+          if (pIdx >= 0 && worldPoses[pIdx] && worldPoses[pIdx].visible) {
+            const pSc = this.worldToScreen(cam, worldPoses[pIdx].jointX, worldPoses[pIdx].jointZ);
+            ctx.strokeStyle = "rgba(229, 206, 40, 0.55)";
+            ctx.lineWidth = 1.2 * cam.dpr;
+            ctx.beginPath();
+            ctx.moveTo(pSc.x, pSc.y);
+            ctx.lineTo(sc.x, sc.y);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = p.def.isTurret ? "#e5ce28" : "#3cf2ff";
+          ctx.strokeStyle = "#090d16";
+          ctx.lineWidth = 1.5 * cam.dpr;
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, 4.2 * cam.dpr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          if (p.def.resolvedMuzzleUV && p.def.isTurret) {
+            const mw = uvToWorldXZ(p, p.def.resolvedMuzzleUV[0], p.def.resolvedMuzzleUV[1]);
+            const ms = this.worldToScreen(cam, mw.x, mw.z);
+            ctx.fillStyle = "#ff5666";
+            ctx.beginPath();
+            ctx.arc(ms.x, ms.y, 4.5 * cam.dpr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+        ctx.restore();
+      },
+
+      // =======================================================================
+      // REAL-TIME WORLD-PINNED HEXAPOD 2-BONE IK CONTROLLER (SANDBOX)
+      // =======================================================================
+      computeWorldHipAndNominalFoot(x, z, headingDeg, legId, scale, hullPoseLocal) {
+        const rig = this.bundle.rig;
+        const meta = rig.legIkMeta[legId];
+        const radRoot = headingDeg * DEG2RAD;
+        const cr = Math.cos(radRoot);
+        const sr = Math.sin(radRoot);
+        const hOx = ((hullPoseLocal && hullPoseLocal.offsetX) || 0) * scale;
+        const hOz = ((hullPoseLocal && hullPoseLocal.offsetY) || 0) * scale;
+        const hjx = x + (hOx * cr + hOz * sr);
+        const hjz = z + (-hOx * sr + hOz * cr);
+        const hwAng = headingDeg + ((hullPoseLocal && hullPoseLocal.angle) || 0);
+        const radH = hwAng * DEG2RAD;
+        const ch = Math.cos(radH);
+        const sh = Math.sin(radH);
+
+        const hipWx = hjx + (meta.hipLocalX * scale * ch + meta.hipLocalZ * scale * sh);
+        const hipWz = hjz + (-meta.hipLocalX * scale * sh + meta.hipLocalZ * scale * ch);
+        const nomWx = hjx + (meta.nominalAnchorLocal[0] * scale * ch + meta.nominalAnchorLocal[1] * scale * sh);
+        const nomWz = hjz + (-meta.nominalAnchorLocal[0] * scale * sh + meta.nominalAnchorLocal[1] * scale * ch);
+        return { hjx, hjz, hwAng, hipWx, hipWz, nomWx, nomWz };
+      },
+
+      stepSandboxHexapodIK(poses, dtTicks, isRushing, isMovingOrTurning, scale = 0.86) {
+        const rig = this.bundle.rig;
+        const hex = this.sb.hexapod;
+        if (!hex.legs || hex.legs.length !== 6) {
+          this.initSandboxHexapod(scale);
+        }
+
+        const legsA = hex.legs.filter((l) => l.group === "A");
+        const legsB = hex.legs.filter((l) => l.group === "B");
+        let anyASwing = legsA.some((l) => l.isSwinging);
+        let anyBSwing = legsB.some((l) => l.isSwinging);
+
+        // Subtle dynamic hull pose: CoM breathing when idle + lateral weight shift toward active supporting tripod!
+        let targetLatShift = 0.0;
+        if (anyASwing && !anyBSwing) targetLatShift = +0.018; // Tripod B supporting (+X starboard centroid)
+        else if (anyBSwing && !anyASwing) targetLatShift = -0.018; // Tripod A supporting (-X port centroid)
+        hex.lateralShift = lerp(hex.lateralShift || 0, targetLatShift, 1.0 - Math.pow(0.76, Math.max(0.2, dtTicks)));
+
+        const breatheZ = isMovingOrTurning
+          ? (0.012 * Math.sin(this.continuousTicks * 0.35))
+          : (-0.018 * Math.cos(this.continuousTicks * (2.0 * Math.PI / 90.0)));
+        const breatheYaw = isMovingOrTurning
+          ? (-hex.lateralShift * 28.0)
+          : (0.30 * Math.sin(this.continuousTicks * (2.0 * Math.PI / 90.0)));
+
+        poses[0].offsetX = hex.lateralShift;
+        poses[0].offsetY = breatheZ;
+        poses[0].angle = breatheYaw;
+
+        if (hex.doubleSupportTicks > 0 && !anyASwing && !anyBSwing) {
+          hex.doubleSupportTicks = Math.max(0, hex.doubleSupportTicks - dtTicks);
+        }
+
+        const swingDur = isRushing ? 7.0 : (this.sb.isPivotTurning ? 7.0 : 9.8);
+        const computeRaibertTarget = (leg) => {
+          const meta = rig.legIkMeta[leg.id];
+          // Predict hull pose at mid-next-stance by rotating around CoM + translating along forward velocity!
+          const lookaheadTicks = swingDur + 0.38 * swingDur;
+          const comOffZ = -0.08 * scale;
+          const curRad = this.sb.headingDeg * DEG2RAD;
+          const comCurX = this.sb.x + comOffZ * Math.sin(curRad);
+          const comCurZ = this.sb.z + comOffZ * Math.cos(curRad);
+
+          const dAngPred = clamp(this.sb.turnVelDeg * lookaheadTicks, -19.0, 19.0);
+          const predHdg = normalizeAngle360(this.sb.headingDeg + dAngPred);
+          const radP = predHdg * DEG2RAD;
+          const cp = Math.cos(radP);
+          const sp = Math.sin(radP);
+          const fwdDisp = this.sb.fwdVel * lookaheadTicks;
+          const predX = (comCurX + Math.sin(curRad) * fwdDisp) - comOffZ * sp;
+          const predZ = (comCurZ + Math.cos(curRad) * fwdDisp) - comOffZ * cp;
+
+          let tx = predX + (meta.nominalAnchorLocal[0] * scale * cp + meta.nominalAnchorLocal[1] * scale * sp);
+          let tz = predZ + (-meta.nominalAnchorLocal[0] * scale * sp + meta.nominalAnchorLocal[1] * scale * cp);
+
+          // Clamp relative to predicted hip at touchdown so reach is 100% comfortable
+          const dAngTd = clamp(this.sb.turnVelDeg * swingDur, -12.0, 12.0);
+          const tdHdg = normalizeAngle360(this.sb.headingDeg + dAngTd);
+          const tdRad = tdHdg * DEG2RAD;
+          const tdFwd = this.sb.fwdVel * swingDur;
+          const tdX = (comCurX + Math.sin(curRad) * tdFwd) - comOffZ * Math.sin(tdRad);
+          const tdZ = (comCurZ + Math.cos(curRad) * tdFwd) - comOffZ * Math.cos(tdRad);
+          const tdHip = this.computeWorldHipAndNominalFoot(tdX, tdZ, tdHdg, leg.id, scale, poses[0]);
+          const dxH = tx - tdHip.hipWx;
+          const dzH = tz - tdHip.hipWz;
+          const rH = Math.hypot(dxH, dzH);
+          const maxSafeR = (meta.L1 + meta.L2) * scale * 0.87;
+          const minSafeR = Math.abs(meta.L2 - meta.L1) * scale * 1.30;
+          if (rH > maxSafeR && rH > 1e-5) {
+            tx = tdHip.hipWx + (dxH / rH) * maxSafeR;
+            tz = tdHip.hipWz + (dzH / rH) * maxSafeR;
+          } else if (rH < minSafeR && rH > 1e-5) {
+            tx = tdHip.hipWx + (dxH / rH) * minSafeR;
+            tz = tdHip.hipWz + (dzH / rH) * minSafeR;
+          }
+          return { x: tx, z: tz };
+        };
+
+        // Strict Alternating Tripod Gate: launch a tripod ONLY when all 6 feet are planted & transfer dwell elapsed
+        if (!anyASwing && !anyBSwing && hex.doubleSupportTicks <= 0) {
+          let maxErrA = 0, maxErrB = 0;
+          hex.legs.forEach((leg) => {
+            const ref = this.computeWorldHipAndNominalFoot(this.sb.x, this.sb.z, this.sb.headingDeg, leg.id, scale, poses[0]);
+            const err = Math.hypot(leg.plantedWorldX - ref.nomWx, leg.plantedWorldZ - ref.nomWz);
+            if (leg.group === "A") maxErrA = Math.max(maxErrA, err);
+            else maxErrB = Math.max(maxErrB, err);
+          });
+
+          const triggerThresh = (this.sb.isPivotTurning ? 0.13 : (isMovingOrTurning ? 0.16 : 0.085)) * scale;
+          let launchGroup = null;
+          if (hex.lastSwungGroup === "B") {
+            if (maxErrA > triggerThresh) launchGroup = "A";
+            else if (maxErrB > triggerThresh * 1.25) launchGroup = "B";
+          } else {
+            if (maxErrB > triggerThresh) launchGroup = "B";
+            else if (maxErrA > triggerThresh * 1.25) launchGroup = "A";
+          }
+
+          if (launchGroup) {
+            const grpLegs = launchGroup === "A" ? legsA : legsB;
+            grpLegs.forEach((leg) => {
+              const tgt = computeRaibertTarget(leg);
+              leg.isSwinging = true;
+              leg.swingProgress = 0.0;
+              leg.swingDuration = swingDur;
+              leg.swingStartX = leg.plantedWorldX;
+              leg.swingStartZ = leg.plantedWorldZ;
+              leg.swingTargetX = tgt.x;
+              leg.swingTargetZ = tgt.z;
+            });
+            hex.lastSwungGroup = launchGroup;
+            if (launchGroup === "A") anyASwing = true;
+            else anyBSwing = true;
+          }
+        }
+
+        // Advance swinging legs & solve exact 2-Bone Analytical IK for all 6 legs
+        let justLandedAny = false;
+        hex.legs.forEach((leg) => {
+          const meta = rig.legIkMeta[leg.id];
+          const curInfo = this.computeWorldHipAndNominalFoot(this.sb.x, this.sb.z, this.sb.headingDeg, leg.id, scale, poses[0]);
+
+          if (leg.isSwinging) {
+            leg.swingDuration = swingDur;
+            if (leg.swingProgress < 0.42 && isMovingOrTurning) {
+              const refined = computeRaibertTarget(leg);
+              leg.swingTargetX = lerp(leg.swingTargetX, refined.x, 0.35);
+              leg.swingTargetZ = lerp(leg.swingTargetZ, refined.z, 0.35);
+            }
+            leg.swingProgress += dtTicks / Math.max(1.0, leg.swingDuration);
+            if (leg.swingProgress >= 1.0) {
+              leg.isSwinging = false;
+              leg.swingProgress = 0.0;
+              leg.plantedWorldX = leg.swingTargetX;
+              leg.plantedWorldZ = leg.swingTargetZ;
+              leg.footWorldX = leg.plantedWorldX;
+              leg.footWorldZ = leg.plantedWorldZ;
+              leg.groundShadowX = leg.plantedWorldX;
+              leg.groundShadowZ = leg.plantedWorldZ;
+              leg.liftHeight = 0.0;
+              leg.coronalFlapDeg = 0.0;
+              justLandedAny = true;
+              this.sb.dustPuffs.push({ x: leg.plantedWorldX, z: leg.plantedWorldZ, age: 0, maxAge: 28 });
+            } else {
+              const u = clamp01(leg.swingProgress);
+              const sHermite = u * u * (3.0 - 2.0 * u);
+              const gx = lerp(leg.swingStartX, leg.swingTargetX, sHermite);
+              const gz = lerp(leg.swingStartZ, leg.swingTargetZ, sHermite);
+              const lift01 = Math.pow(Math.sin(Math.PI * u), 2);
+              leg.groundShadowX = gx;
+              leg.groundShadowZ = gz;
+              leg.liftHeight = (isRushing ? 0.20 : 0.15) * lift01;
+              leg.coronalFlapDeg = (isRushing ? 18.0 : 15.5) * lift01;
+
+              const toHipX = curInfo.hipWx - gx;
+              const toHipZ = curInfo.hipWz - gz;
+              const toHipLen = Math.max(1e-5, Math.hypot(toHipX, toHipZ));
+              const tuck = (isRushing ? 0.11 : 0.09) * scale * lift01;
+              leg.footWorldX = gx + (toHipX / toHipLen) * tuck;
+              leg.footWorldZ = gz + (toHipZ / toHipLen) * tuck;
+            }
+          } else {
+            leg.footWorldX = leg.plantedWorldX;
+            leg.footWorldZ = leg.plantedWorldZ;
+            leg.groundShadowX = leg.plantedWorldX;
+            leg.groundShadowZ = leg.plantedWorldZ;
+            leg.liftHeight = 0.0;
+            leg.coronalFlapDeg = 0.0;
+          }
+
+          const ik = solveLegIK2D(
+            rig,
+            leg.id,
+            curInfo.hjx,
+            curInfo.hjz,
+            curInfo.hwAng,
+            leg.footWorldX,
+            leg.footWorldZ,
+            leg.coronalFlapDeg,
+            scale
+          );
+          poses[meta.femurIndex].angle = ik.femurAngle;
+          poses[meta.femurIndex].coronalFlap = leg.coronalFlapDeg;
+          poses[meta.femurIndex].sagittalPitch = 0.0;
+          poses[meta.tibiaIndex].angle = ik.tibiaAngle;
+          poses[meta.tibiaIndex].sagittalPitch = 0.0;
+        });
+
+        if (justLandedAny && !hex.legs.some((l) => l.isSwinging)) {
+          hex.doubleSupportTicks = isRushing ? 0.9 : 1.8;
+        }
+      },
+
+      // =======================================================================
+      // MODE 2: INTERACTIVE RIMWORLD AMPHIBIOUS SANDBOX STEP & RENDER
+      // =======================================================================
+      stepAndRenderSandbox(ctx, cw, ch, dpr, dtTicks) {
+        const SB_SCALE = 0.86;
+        const ppm = 38.0 * this.camZoom;
+        const cam = {
+          cx: cw * 0.5,
+          cy: ch * 0.48,
+          x: this.camPanX,
+          z: this.camPanZ,
+          ppm: ppm,
+          dpr: dpr
+        };
+
+        this.mouseWorldX = cam.x + (this.mouseX - cam.cx) / cam.ppm;
+        this.mouseWorldZ = cam.z - (this.mouseY - cam.cy) / cam.ppm;
+
+        // 1. Non-Holonomic Sandbox Locomotion (Zero Sideways Crab Ice-Skating!)
+        let inX = 0, inZ = 0;
+        if (this.keys["KeyW"] || this.keys["ArrowUp"]) inZ += 1;
+        if (this.keys["KeyS"] || this.keys["ArrowDown"]) inZ -= 1;
+        if (this.keys["KeyD"] || this.keys["ArrowRight"]) inX += 1;
+        if (this.keys["KeyA"] || this.keys["ArrowLeft"]) inX -= 1;
+
+        if (inX !== 0 || inZ !== 0) {
+          this.sb.moveOrder = null;
+        } else if (this.sb.moveOrder) {
+          const dx = this.sb.moveOrder.x - this.sb.x;
+          const dz = this.sb.moveOrder.z - this.sb.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist > 0.24) {
+            inX = dx / dist;
+            inZ = dz / dist;
+          } else {
+            this.sb.moveOrder = null;
+          }
+        }
+
+        const isRushing = Boolean(this.keys["ShiftLeft"] || this.keys["ShiftRight"]);
+        const morphLockingLegs =
+          (this.sb.morphState === "morph_to_water" && this.sb.morphTick < 18.0) ||
+          (this.sb.morphState === "morph_to_land");
+        const canMove = (!this.sb.activeSkill || this.sb.activeSkill.kind !== 1) && !morphLockingLegs;
+        let movedDist = 0;
+        const prevX = this.sb.x;
+        const prevZ = this.sb.z;
+        const prevHdg = this.sb.headingDeg;
+        this.sb.isPivotTurning = false;
+
+        let candX = this.sb.x;
+        let candZ = this.sb.z;
+        let candHdg = this.sb.headingDeg;
+
+        if (canMove && (inX !== 0 || inZ !== 0)) {
+          const len = Math.hypot(inX, inZ);
+          const dirX = inX / len;
+          const dirZ = inZ / len;
+          const desiredHeading = normalizeAngle360(Math.atan2(dirX, dirZ) * RAD2DEG);
+          const turnDiff = deltaAngle(this.sb.headingDeg, desiredHeading);
+
+          if (!this.sb.inWater && this.sb.morphState === "land") {
+            if (Math.abs(turnDiff) > 32.0) {
+              // Non-holonomic Pivot-Turn In Place around Hull CoM (0, -0.08 * SB_SCALE)
+              this.sb.isPivotTurning = true;
+              this.sb.fwdVel *= Math.pow(0.60, dtTicks);
+              const maxTurn = (isRushing ? 2.2 : 1.85) * dtTicks;
+              const dTheta = clamp(turnDiff, -maxTurn, maxTurn);
+              const comOffZ = -0.08 * SB_SCALE;
+              const oldRad = this.sb.headingDeg * DEG2RAD;
+              const comWx = this.sb.x + comOffZ * Math.sin(oldRad);
+              const comWz = this.sb.z + comOffZ * Math.cos(oldRad);
+              candHdg = normalizeAngle360(this.sb.headingDeg + dTheta);
+              const newRad = candHdg * DEG2RAD;
+              candX = clamp(comWx - comOffZ * Math.sin(newRad), -16.0, 16.0);
+              candZ = clamp(comWz - comOffZ * Math.cos(newRad), -9.8, 9.8);
+            } else {
+              // Aligned forward propulsion strictly along chassis bow heading (zero lateral slip!)
+              const maxTurn = 2.4 * dtTicks;
+              candHdg = normalizeAngle360(this.sb.headingDeg + clamp(turnDiff, -maxTurn, maxTurn));
+              const alignFactor = Math.max(0.25, Math.cos(turnDiff * DEG2RAD));
+              const targetSpd = (isRushing ? 0.072 : 0.045) * alignFactor;
+              this.sb.fwdVel = lerp(this.sb.fwdVel, targetSpd, 1.0 - Math.pow(0.76, dtTicks));
+            }
+          } else {
+            // Water boat steering + waterjet bow propulsion
+            const maxTurn = 3.4 * dtTicks;
+            candHdg = normalizeAngle360(this.sb.headingDeg + clamp(turnDiff, -maxTurn, maxTurn));
+            const alignFactor = Math.max(0.20, Math.cos(clamp(turnDiff, -85, 85) * DEG2RAD));
+            this.sb.fwdVel = lerp(this.sb.fwdVel, 0.088 * alignFactor, 1.0 - Math.pow(0.80, dtTicks));
+          }
+        } else {
+          this.sb.fwdVel *= Math.pow(0.72, dtTicks);
+          if (Math.abs(this.sb.fwdVel) < 0.0006) this.sb.fwdVel = 0;
+        }
+
+        if (canMove && Math.abs(this.sb.fwdVel) > 1e-5 && !this.sb.isPivotTurning) {
+          const rad = candHdg * DEG2RAD;
+          const fwdX = Math.sin(rad);
+          const fwdZ = Math.cos(rad);
+          const stepDist = this.sb.fwdVel * dtTicks;
+          candX = clamp(candX + fwdX * stepDist, -16.0, 16.0);
+          candZ = clamp(candZ + fwdZ * stepDist, -9.8, 9.8);
+        }
+
+        // Universal 2D + Angular Kinematic Stance Reach Leash on Land:
+        // Ensures 100% of planted feet remain strictly inside reachable 2-bone IK workspace (0.000000 slip!)
+        if (!this.sb.inWater && this.sb.morphState === "land" && this.sb.hexapod.legs.length === 6) {
+          const isPoseReachableForPlanted = (tx, tz, thdg) => {
+            for (let i = 0; i < this.sb.hexapod.legs.length; i++) {
+              const leg = this.sb.hexapod.legs[i];
+              if (leg.isSwinging) continue;
+              const meta = this.bundle.rig.legIkMeta[leg.id];
+              const maxReach = (meta.L1 + meta.L2 - 0.055) * SB_SCALE;
+              const minReach = (Math.abs(meta.L2 - meta.L1) + 0.055) * SB_SCALE;
+              const hipP = this.computeWorldHipAndNominalFoot(tx, tz, thdg, leg.id, SB_SCALE, null);
+              const d = Math.hypot(leg.plantedWorldX - hipP.hipWx, leg.plantedWorldZ - hipP.hipWz);
+              if (d > maxReach || d < minReach) return false;
+            }
+            return true;
+          };
+
+          if (!isPoseReachableForPlanted(candX, candZ, candHdg)) {
+            const dH = deltaAngle(prevHdg, candHdg);
+            let lo = 0.0, hi = 1.0;
+            for (let it = 0; it < 7; it++) {
+              const mid = 0.5 * (lo + hi);
+              const mx = lerp(prevX, candX, mid);
+              const mz = lerp(prevZ, candZ, mid);
+              const mh = normalizeAngle360(prevHdg + dH * mid);
+              if (isPoseReachableForPlanted(mx, mz, mh)) lo = mid;
+              else hi = mid;
+            }
+            candX = lerp(prevX, candX, lo);
+            candZ = lerp(prevZ, candZ, lo);
+            candHdg = normalizeAngle360(prevHdg + dH * lo);
+          }
+        }
+
+        this.sb.x = candX;
+        this.sb.z = candZ;
+        this.sb.headingDeg = candHdg;
+        movedDist = Math.hypot(this.sb.x - prevX, this.sb.z - prevZ);
+
+        if (this.sb.inWater && movedDist > 1e-4 && Math.floor(this.continuousTicks) % 3 === 0) {
+          const rad = this.sb.headingDeg * DEG2RAD;
+          this.sb.wakeParticles.push({
+            x: this.sb.x - Math.sin(rad) * 1.35,
+            z: this.sb.z - Math.cos(rad) * 1.35,
+            age: 0,
+            maxAge: 46
+          });
+        }
+
+        const safeDt = Math.max(0.05, dtTicks);
+        this.sb.velX = (this.sb.x - prevX) / safeDt;
+        this.sb.velZ = (this.sb.z - prevZ) / safeDt;
+        this.sb.turnVelDeg = deltaAngle(prevHdg, this.sb.headingDeg) / safeDt;
+
+        // 2. Automatic Water / Land Detection & Load-Bearing Amphibious Morphing!
+        const nowWater = this.isPointInPond(this.sb.x, this.sb.z);
+        if (nowWater !== this.sb.inWater) {
+          this.sb.inWater = nowWater;
+          this.sb.fwdVel = 0;
+          if (nowWater) {
+            this.sb.morphState = "morph_to_water";
+            this.sb.morphTick = 0;
+            // Snap any mid-swing legs onto clean anchors so all 6 legs bear hull lowering [0..18T]
+            this.sb.hexapod.legs.forEach((leg) => {
+              if (leg.isSwinging) {
+                leg.isSwinging = false;
+                leg.plantedWorldX = leg.footWorldX;
+                leg.plantedWorldZ = leg.footWorldZ;
+              }
+            });
+            this.logSandbox("驶入连通水域：[0-18T] 六足锁地将船腹平稳沉入浮力线 -> [18-56T] 卸荷折叠六足入船底！");
+          } else {
+            this.sb.morphState = "morph_to_land";
+            this.sb.morphTick = 0;
+            this.initSandboxHexapod(SB_SCALE);
+            this.logSandbox("抢滩登岸浅滩：[0-30T] 六足依次展开抓地 -> [30-56T] 双骨 IK 零滑移顶升船体！");
+          }
+          this.updateGizmoHighlights();
+        }
+
+        if (this.sb.morphState === "morph_to_water") {
+          this.sb.morphTick += dtTicks;
+          if (this.sb.morphTick >= 56) this.sb.morphState = "water";
+        } else if (this.sb.morphState === "morph_to_land") {
+          this.sb.morphTick += dtTicks;
+          if (this.sb.morphTick >= 56) this.sb.morphState = "land";
+        }
+
+        // 3. Step Active Sandbox Skill
+        if (this.sb.activeSkill) {
+          const sk = this.sb.activeSkill;
+          sk.tick += dtTicks;
+          if (sk.kind === 1 && !sk.warped && sk.tick >= 24) {
+            sk.warped = true;
+            this.sb.x = sk.targetX;
+            this.sb.z = sk.targetZ;
+            this.sb.fwdVel = 0;
+            const destWater = this.isPointInPond(this.sb.x, this.sb.z);
+            this.sb.inWater = destWater;
+            this.sb.morphState = destWater ? "water" : "land";
+            if (!destWater) this.initSandboxHexapod(SB_SCALE);
+            this.updateGizmoHighlights();
+            this.logSandbox(`超时空跃迁落点确认：已瞬时切换为${destWater ? "【船体模式（六足隐藏）】" : "【陆地双骨 IK 六足姿态】"}！`);
+          }
+          if (sk.tick >= sk.maxTick) {
+            this.sb.activeSkill = null;
+          }
+        }
+
+        // 4. Step Pond Fish, Flying Caught Fish, Dust Puffs & Dummies
+        this.sb.pondFish.forEach((f) => {
+          f.heading += Math.sin(this.continuousTicks * 0.03 + f.phase) * 0.03;
+          const nx = f.x + Math.cos(f.heading) * f.speed * dtTicks;
+          const nz = f.z + Math.sin(f.heading) * f.speed * dtTicks;
+          if (this.pondDepth01(nx, nz) > 0.14) {
+            f.x = nx;
+            f.z = nz;
+          } else {
+            f.heading += Math.PI * 0.75;
+          }
+        });
+
+        this.sb.flyingFish = this.sb.flyingFish.filter((ff) => {
+          ff.progress += 0.024 * dtTicks;
+          return ff.progress < 1.0;
+        });
+
+        this.sb.wakeParticles = this.sb.wakeParticles.filter((wp) => {
+          wp.age += dtTicks;
+          return wp.age < wp.maxAge;
+        });
+
+        this.sb.dustPuffs = this.sb.dustPuffs.filter((dp) => {
+          dp.age += dtTicks;
+          return dp.age < dp.maxAge;
+        });
+
+        let cardsDirty = false;
+        this.sb.pawns.forEach((p) => {
+          if (p.stunTicks > 0) {
+            p.stunTicks -= dtTicks;
+            p.spinDir = Math.floor(this.continuousTicks / 16) % 4;
+            p.jitterDeg = Math.sin(this.continuousTicks * 1.25 + p.x) * 9.0;
+            if (p.stunTicks <= 0) {
+              p.stunTicks = 0;
+              p.spinDir = 0;
+              p.jitterDeg = 0;
+              if (p.activeHediff === "therapy") {
+                p.therapyCount++;
+                p.activeHediff = null;
+                const stg = Math.min(5, p.therapyCount);
+                this.logSandbox(`[${p.name}] 电疗结束，签署永久状态【无慰契约】(第 ${p.therapyCount} 次)：${this.bundle.lore.contractStages[stg - 1]}`);
+                cardsDirty = true;
+              } else if (p.activeHediff === "electrocuted") {
+                p.activeHediff = null;
+                p.afterTicks = 420;
+                this.logSandbox(`[${p.name}] 电击结束，挂载 2H【刚刚被电了】("酥酥麻麻的......"，移速x95%，效率x95%)。`);
+                cardsDirty = true;
+              }
+            }
+          } else if (p.afterTicks > 0) {
+            p.afterTicks = Math.max(0, p.afterTicks - dtTicks);
+            if (p.afterTicks === 0) cardsDirty = true;
+          }
+        });
+        if (cardsDirty) this.renderSandboxPawnCards();
+
+        // 5. Select Underlying Clip Pose + Real-Time World-Pinned Hexapod 2-Bone IK Override
+        const isMovingOrTurning = movedDist > 1e-4 || Math.abs(this.sb.turnVelDeg) > 0.08;
+        let activeClipCode = "01_Land_Idle";
+        let sampleT = this.continuousTicks;
+        let useRealtimeHexapodIK = false;
+
+        if (this.sb.activeSkill && this.sb.activeSkill.kind === 1) {
+          activeClipCode = "10_Skill_ChronoTeleport";
+          sampleT = (this.sb.activeSkill.tick / this.sb.activeSkill.maxTick) * 72.0;
+        } else if (this.sb.activeSkill && this.sb.activeSkill.kind === 3) {
+          activeClipCode = "12_Skill_TeslaOverload";
+          sampleT = (this.sb.activeSkill.tick / this.sb.activeSkill.maxTick) * 96.0;
+        } else if (this.sb.morphState === "morph_to_water") {
+          activeClipCode = "05_Morph_LandToWater";
+          sampleT = this.sb.morphTick;
+        } else if (this.sb.morphState === "morph_to_land") {
+          activeClipCode = "08_Morph_WaterToLand";
+          sampleT = this.sb.morphTick;
+        } else if (this.sb.morphState === "water") {
+          if (movedDist > 1e-4) {
+            activeClipCode = "07_Water_Cruise";
+            this.sb.walkPhase = (this.sb.walkPhase + movedDist * 26.0) % 40.0;
+            sampleT = this.sb.walkPhase;
+          } else {
+            activeClipCode = "06_Water_Idle";
+            sampleT = this.continuousTicks;
+          }
+        } else {
+          useRealtimeHexapodIK = true;
+          if (this.sb.isPivotTurning) {
+            activeClipCode = "04_Land_TurnInPlace";
+          } else if (movedDist > 1e-4) {
+            activeClipCode = isRushing ? "03_Land_Run" : "02_Land_Walk";
+          } else {
+            activeClipCode = "01_Land_Idle";
+          }
+          sampleT = this.continuousTicks;
+        }
+
+        const sbClip = this.bundle.clips.find((c) => c.id === activeClipCode) || this.bundle.clips[0];
+        const poses = this.evaluateClipLocalPoses(sbClip, sampleT);
+
+        // Apply live world-pinned 2-Bone Analytical IK on land & during load-bearing morph phases!
+        if (useRealtimeHexapodIK) {
+          this.stepSandboxHexapodIK(poses, dtTicks, isRushing, isMovingOrTurning, SB_SCALE);
+        } else if (this.sb.morphState === "morph_to_water" && this.sb.hexapod.legs.length === 6) {
+          // [0..18/21/24T] Keep unloaded/planted pairs world-pinned while hull lowers onto buoyancy!
+          const liftTicks = { leg_fl: 18, leg_fr: 18, leg_ml: 21, leg_mr: 21, leg_rl: 24, leg_rr: 24 };
+          this.sb.hexapod.legs.forEach((leg) => {
+            if (this.sb.morphTick <= liftTicks[leg.id]) {
+              const meta = this.bundle.rig.legIkMeta[leg.id];
+              const curInfo = this.computeWorldHipAndNominalFoot(this.sb.x, this.sb.z, this.sb.headingDeg, leg.id, SB_SCALE, poses[0]);
+              const ik = solveLegIK2D(this.bundle.rig, leg.id, curInfo.hjx, curInfo.hjz, curInfo.hwAng,
+                leg.plantedWorldX, leg.plantedWorldZ, poses[meta.femurIndex].coronalFlap || 0, SB_SCALE);
+              poses[meta.femurIndex].angle = ik.femurAngle;
+              poses[meta.femurIndex].sagittalPitch = 0.0;
+              poses[meta.tibiaIndex].angle = ik.tibiaAngle;
+              poses[meta.tibiaIndex].sagittalPitch = 0.0;
+            }
+          });
+        } else if (this.sb.morphState === "morph_to_land" && this.sb.hexapod.legs.length === 6) {
+          // [24/27/30..56T] Lock planted feet via 2-Bone IK as legs jack hull upward!
+          const plantTicks = { leg_fl: 24, leg_fr: 24, leg_ml: 27, leg_mr: 27, leg_rl: 30, leg_rr: 30 };
+          this.sb.hexapod.legs.forEach((leg) => {
+            if (this.sb.morphTick >= plantTicks[leg.id]) {
+              const meta = this.bundle.rig.legIkMeta[leg.id];
+              const curInfo = this.computeWorldHipAndNominalFoot(this.sb.x, this.sb.z, this.sb.headingDeg, leg.id, SB_SCALE, poses[0]);
+              const ik = solveLegIK2D(this.bundle.rig, leg.id, curInfo.hjx, curInfo.hjz, curInfo.hwAng,
+                leg.plantedWorldX, leg.plantedWorldZ, poses[meta.femurIndex].coronalFlap || 0, SB_SCALE);
+              poses[meta.femurIndex].angle = ik.femurAngle;
+              poses[meta.femurIndex].sagittalPitch = 0.0;
+              poses[meta.tibiaIndex].angle = ik.tibiaAngle;
+              poses[meta.tibiaIndex].sagittalPitch = 0.0;
+            }
+          });
+        }
+
+        // Aim turrets at therapy target or mouse cursor
+        let aimX = this.mouseWorldX;
+        let aimZ = this.mouseWorldZ;
+        const firingTherapy = this.sb.activeSkill && this.sb.activeSkill.kind === 2;
+        if (firingTherapy) {
+          const tp = this.sb.pawns.find((x) => x.id === this.sb.activeSkill.pawnId);
+          if (tp) { aimX = tp.x; aimZ = tp.z; }
+        }
+        this.applyDualArmTurretAiming(poses, { x: this.sb.x, z: this.sb.z }, this.sb.headingDeg, aimX, aimZ, dtTicks, 1.0);
+
+        // Normal attack left-click firing
+        const normalFiring = this.mouseDownLeft && !this.sb.armedSkill && !firingTherapy;
+        const recoilOffsets = {};
+        const podL = this.bundle.rig.roleMap.tesla_pod_left;
+        const podR = this.bundle.rig.roleMap.tesla_pod_right;
+        if (normalFiring || firingTherapy) {
+          if (Math.floor(this.continuousTicks) % 8 === 0) {
+            const fireAng = normalizeAngle360(Math.atan2(aimX - this.sb.x, aimZ - this.sb.z) * RAD2DEG);
+            if (podL !== undefined) this.recoils[podL].queueImpulse(this.bundle.rig.nodes[podL].turretRecoil, fireAng, 1.0);
+            if (podR !== undefined) this.recoils[podR].queueImpulse(this.bundle.rig.nodes[podR].turretRecoil, fireAng, 1.0);
+          }
+        }
+        this.bundle.rig.nodes.forEach((n, idx) => {
+          recoilOffsets[idx] = this.recoils[idx].stepAndEvaluate(dtTicks, this.sb.headingDeg + (n.baseAngle || 0) + poses[idx].angle);
+        });
+
+        // 6. Render Sandbox Terrain, Pond, Fish, Dust Puffs, Rig, Physics Overlay, Dummies & Arcs
+        this.drawSandboxMap(ctx, cw, ch, dpr, cam);
+
+        const worldPoses = solveWorldPoses(
+          this.bundle.rig,
+          { x: this.sb.x, z: this.sb.z },
+          this.sb.headingDeg,
+          poses,
+          this.missingMask,
+          SB_SCALE,
+          recoilOffsets
+        );
+
+        this.drawUnderHullVfx(ctx, cam, sbClip, sampleT, { x: this.sb.x, z: this.sb.z }, this.sb.headingDeg);
+        this.renderRigSorted(ctx, cam, worldPoses, sbClip);
+
+        // Evaluate independent FK foot verification & render Support Polygon Overlay in Sandbox
+        const isBoatMode = this.sb.morphState === "water" ||
+          (this.sb.morphState === "morph_to_water" && this.sb.morphTick >= 24) ||
+          (this.sb.morphState === "morph_to_land" && this.sb.morphTick < 24);
+        let sbGroundedPts = [];
+        let sbPhysLegs = [];
+        let sbMaxFootSlip = 0.0;
+
+        if (!isBoatMode && this.sb.hexapod.legs.length === 6) {
+          const liftTicks = { leg_fl: 18, leg_fr: 18, leg_ml: 21, leg_mr: 21, leg_rl: 24, leg_rr: 24 };
+          const plantTicks = { leg_fl: 24, leg_fr: 24, leg_ml: 27, leg_mr: 27, leg_rl: 30, leg_rr: 30 };
+          this.sb.hexapod.legs.forEach((leg) => {
+            const meta = this.bundle.rig.legIkMeta[leg.id];
+            const tp = worldPoses[meta.tibiaIndex];
+            if (!tp || !tp.visible) return;
+            const actualFoot = uvToWorldXZ(tp, meta.footTipUV[0], meta.footTipUV[1]);
+            let grounded = !leg.isSwinging;
+            if (this.sb.morphState === "morph_to_water") grounded = this.sb.morphTick <= liftTicks[leg.id];
+            else if (this.sb.morphState === "morph_to_land") grounded = this.sb.morphTick >= plantTicks[leg.id];
+
+            if (grounded && (!this.sb.activeSkill || this.sb.activeSkill.kind !== 1)) {
+              const slip = Math.hypot(actualFoot.x - leg.plantedWorldX, actualFoot.z - leg.plantedWorldZ);
+              if (slip > sbMaxFootSlip) sbMaxFootSlip = slip;
+              sbGroundedPts.push({ x: actualFoot.x, z: actualFoot.z });
+            }
+            sbPhysLegs.push({
+              id: leg.id,
+              grounded: grounded,
+              footX: actualFoot.x,
+              footZ: actualFoot.z,
+              shadowX: grounded ? actualFoot.x : leg.groundShadowX,
+              shadowZ: grounded ? actualFoot.z : leg.groundShadowZ,
+              lift01: leg.liftHeight / 0.20
+            });
+          });
+        }
+
+        const hullPose = worldPoses[0];
+        const comLocal = this.bundle.rig.hullComLocal || [0.0, -0.08];
+        const sbComWorld = hullPose ? {
+          x: hullPose.flatJointX + (comLocal[0] * SB_SCALE * hullPose.cosTheta + comLocal[1] * SB_SCALE * hullPose.sinTheta),
+          z: hullPose.flatJointZ + (-comLocal[0] * SB_SCALE * hullPose.sinTheta + comLocal[1] * SB_SCALE * hullPose.cosTheta)
+        } : { x: this.sb.x, z: this.sb.z };
+        const sbSupportPoly = convexHull2D(sbGroundedPts);
+        const sbComStability = evaluateComStabilityAgainstHull(sbComWorld, sbSupportPoly);
+
+        if (this.showPhysics && !isBoatMode && sbPhysLegs.length > 0) {
+          this.drawPhysicsSupportOverlay(ctx, cam, worldPoses, {
+            isWaterMode: isBoatMode,
+            legs: sbPhysLegs,
+            supportPolygon: sbSupportPoly,
+            comWorld: sbComWorld,
+            comStability: sbComStability
+          });
+        }
+
+        // Render Sandbox Dummies
+        this.sb.pawns.forEach((p) => {
+          let title = "", sub = "", border = "#3cf2ff";
+          if (p.activeHediff === "therapy") {
+            title = "【炼铜癖治疗中】";
+            sub = "\"我...不会....哦齁齁齁齁\"";
+            border = "#ff6ad5";
+          } else if (p.activeHediff === "electrocuted") {
+            title = "【触电了】";
+            sub = "\"哦齁齁齁齁齁齁齁\"";
+            border = "#3cf2ff";
+          } else if (p.afterTicks > 0) {
+            title = "【刚刚被电了】";
+            sub = "\"酥酥麻麻的......\"";
+            border = "#6ce5ff";
+          } else if (p.therapyCount > 0) {
+            title = `【无慰契约】(${p.therapyCount}次)`;
+            sub = p.therapyCount >= 5 ? "？你就是想电人玩是么？" : "已签署契约（见右侧详情）";
+            border = "#e5ce28";
+          }
+          this.drawDummyPawn(ctx, cam, p.x, p.z, {
+            label: p.name,
+            isAnimal: p.kind === "animal",
+            color: p.color,
+            shocked: p.stunTicks > 0,
+            spinDir: p.spinDir,
+            jitterDeg: p.jitterDeg,
+            stunPct: p.stunTicks / 96.0,
+            calloutTitle: title,
+            calloutSub: sub,
+            calloutBorder: border
+          });
+        });
+
+        // Render Sandbox Active Weapon / Skill VFX
+        const mL = this.getMuzzleScreenPos(cam, worldPoses, "tesla_pod_left");
+        const mR = this.getMuzzleScreenPos(cam, worldPoses, "tesla_pod_right");
+        const seedBase = Math.floor(this.continuousTicks * 0.5);
+
+        if ((normalFiring || firingTherapy) && mL && mR) {
+          const tgtSc = this.worldToScreen(cam, aimX, aimZ);
+          drawLightningArc(ctx, mL.screen.x, mL.screen.y, tgtSc.x, tgtSc.y, seedBase + 13, {
+            widthScale: cam.dpr * 0.9,
+            colorOuter: firingTherapy ? "rgba(210, 75, 255, 0.36)" : undefined
+          });
+          drawLightningArc(ctx, mR.screen.x, mR.screen.y, tgtSc.x, tgtSc.y, seedBase + 31, {
+            widthScale: cam.dpr * 0.9,
+            colorOuter: firingTherapy ? "rgba(210, 75, 255, 0.36)" : undefined
+          });
+          this.drawImpactSparks(ctx, tgtSc.x, tgtSc.y, cam.dpr, seedBase);
+        }
+
+        if (this.sb.activeSkill) {
+          const sk = this.sb.activeSkill;
+          if (sk.kind === 1) {
+            const sSc = this.worldToScreen(cam, sk.startX, sk.startZ);
+            const dSc = this.worldToScreen(cam, sk.targetX, sk.targetZ);
+            if (sk.tick < 28) this.drawChronoSphereEffect(ctx, sSc.x, sSc.y, cam.ppm * cam.dpr * 1.4, 1.0 - sk.tick / 28, seedBase);
+            if (sk.tick >= 20) this.drawChronoSphereEffect(ctx, dSc.x, dSc.y, cam.ppm * cam.dpr * (0.6 + (sk.tick - 20) / 35), 1.0 - (sk.tick - 20) / 40, seedBase + 19);
+          } else if (sk.kind === 3) {
+            const oSc = this.worldToScreen(cam, sk.originX, sk.originZ);
+            const u = clamp01(sk.tick / sk.maxTick);
+            const radPx = cam.ppm * cam.dpr * (1.0 + u * 8.5);
+            ctx.save();
+            ctx.globalCompositeOperation = "lighter";
+            ctx.strokeStyle = `rgba(60, 242, 255, ${((1.0 - u) * 0.88).toFixed(3)})`;
+            ctx.lineWidth = 5 * cam.dpr * (1.0 - u * 0.6);
+            ctx.beginPath();
+            ctx.arc(oSc.x, oSc.y, radPx, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            for (let s = 0; s < 8; s++) {
+              const a = (s / 8) * Math.PI * 2 + u * 0.9;
+              drawLightningArc(ctx, oSc.x, oSc.y, oSc.x + Math.cos(a) * radPx, oSc.y + Math.sin(a) * radPx, seedBase + s * 17, {
+                widthScale: cam.dpr * 0.8, branches: false
+              });
+            }
+          }
+        }
+
+        // Targeting cursor preview when Skill 1 or Skill 2 is armed
+        if (this.sb.armedSkill > 0) {
+          const cur = this.worldToScreen(cam, this.mouseWorldX, this.mouseWorldZ);
+          ctx.save();
+          ctx.strokeStyle = "#e5ce28";
+          ctx.lineWidth = 2 * cam.dpr;
+          ctx.setLineDash([5 * cam.dpr, 4 * cam.dpr]);
+          ctx.beginPath();
+          ctx.arc(cur.x, cur.y, 20 * cam.dpr, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Sandbox UI Telemetry
+        const spdCellsSec = ((movedDist / safeDt) * 60.0).toFixed(1);
+        const modeTxt = this.sb.morphState === "water" ? "船体巡航 (六足隐藏)" :
+          (this.sb.morphState.startsWith("morph") ? "水陆承重变形中" :
+          (this.sb.isPivotTurning ? "原地枢轴踏步转向" : "陆地双骨IK六足"));
+        document.getElementById("sbPoseBadge").textContent = modeTxt;
+        document.getElementById("sbSpeedBadge").textContent = `${Math.round(this.sb.headingDeg)} deg | ${spdCellsSec} c/s`;
+        document.getElementById("sbFishBadge").textContent = `${this.sb.pondFish.length} / ${this.sb.maxFish} 尾`;
+        document.getElementById("hudTitle").textContent = `实机沙盒 — 非完整车体转向 + 实时世界锚定双骨 IK (${activeClipCode})`;
+        document.getElementById("hudDesc").textContent =
+          this.sb.armedSkill === 1 ? "【瞄准中】请左键点击任意陆地或池塘水面位置进行超时空传送（右键取消）。" :
+          (this.sb.armedSkill === 2 ? "【瞄准中】请左键点击场内任意人形目标（或右侧角色卡片）释放炼铜癖治疗电弧。" :
+          "WASD/右键非完整物理驾驶（大角度原地枢轴踏步转向，对准后沿车头推进零横滑）；进出池塘触发两阶段承重变形。");
+        if (isBoatMode) {
+          document.getElementById("hudTelemetry").innerHTML = `
+            <span>POS: (${this.sb.x.toFixed(1)}, ${this.sb.z.toFixed(1)})</span>
+            <span>MODE: BOAT (LEGS 100% TUCKED)</span>
+            <span>POND FISH: ${this.sb.pondFish.length}</span>
+          `;
+        } else {
+          const stabTxt = sbGroundedPts.length >= 3
+            ? (sbComStability.inside ? `INSIDE (+${sbComStability.margin.toFixed(2)} c)` : `OUTSIDE (${sbComStability.margin.toFixed(2)} c)`)
+            : "MORPH";
+          document.getElementById("hudTelemetry").innerHTML = `
+            <span>GROUNDED FEET: ${sbGroundedPts.length}/6</span>
+            <span style="color:var(--ok-green);">MAX FOOT SLIP: ${sbMaxFootSlip.toFixed(3)} c</span>
+            <span style="color:var(--ok-green);">CoM STABILITY: ${stabTxt}</span>
+          `;
+        }
+      },
+
+      drawSandboxMap(ctx, cw, ch, dpr, cam) {
+        const w = cw * dpr;
+        const h = ch * dpr;
+
+        // Land Soil & Grass base
+        ctx.fillStyle = "#222922";
+        ctx.fillRect(0, 0, w, h);
+
+        // Draw Pond Contour (Sand bank -> Shallow Water -> Deep Water)
+        const pondCenter = this.worldToScreen(cam, 5.6, 0.2);
+        const rx = 8.2 * cam.ppm * dpr;
+        const rz = 6.8 * cam.ppm * dpr;
+
+        const tracePondPoly = (scale) => {
+          ctx.beginPath();
+          for (let i = 0; i <= 64; i++) {
+            const a = (i / 64) * Math.PI * 2;
+            const wx = 5.6 + Math.cos(a) * 8.2 * scale;
+            const wz = 0.2 + Math.sin(a) * 6.8 * scale;
+            const wob = 1.0 - 0.04 * Math.sin(wz * 0.75) - 0.03 * Math.cos(wx * 0.65);
+            const pt = this.worldToScreen(cam, 5.6 + (wx - 5.6) * wob, 0.2 + (wz - 0.2) * wob);
+            if (i === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          }
+          ctx.closePath();
+        };
+
+        // Wet sand beach rim
+        ctx.fillStyle = "#484232";
+        tracePondPoly(1.09);
+        ctx.fill();
+
+        // Shallow water
+        ctx.fillStyle = "#194c6e";
+        tracePondPoly(1.0);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(155, 232, 255, 0.35)";
+        ctx.lineWidth = 2 * dpr;
+        ctx.stroke();
+
+        // Deep water core
+        const deepGrad = ctx.createRadialGradient(pondCenter.x, pondCenter.y, rx * 0.1, pondCenter.x, pondCenter.y, rx * 0.78);
+        deepGrad.addColorStop(0, "#0c2844");
+        deepGrad.addColorStop(1, "#143f60");
+        ctx.fillStyle = deepGrad;
+        tracePondPoly(0.72);
+        ctx.fill();
+
+        if (this.showGrid) {
+          this.drawRimWorldGrid(ctx, cw, ch, dpr, cam);
+        }
+
+        // Wake trail particles in pond
+        this.sb.wakeParticles.forEach((wp) => {
+          const u = wp.age / wp.maxAge;
+          const sc = this.worldToScreen(cam, wp.x, wp.z);
+          ctx.strokeStyle = `rgba(185, 246, 255, ${((1.0 - u) * 0.45).toFixed(3)})`;
+          ctx.lineWidth = 1.6 * dpr;
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, (0.22 + u * 0.55) * cam.ppm * dpr, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+
+        // Land FootstepDust rings at exact world-pinned touchdowns
+        this.sb.dustPuffs.forEach((dp) => {
+          const u = dp.age / dp.maxAge;
+          const sc = this.worldToScreen(cam, dp.x, dp.z);
+          ctx.strokeStyle = `rgba(218, 210, 185, ${((1.0 - u) * 0.48).toFixed(3)})`;
+          ctx.fillStyle = `rgba(182, 174, 148, ${((1.0 - u) * 0.16).toFixed(3)})`;
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.beginPath();
+          ctx.arc(sc.x, sc.y, (0.12 + u * 0.28) * cam.ppm * dpr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        // Swimming Pond Fish
+        this.sb.pondFish.forEach((f) => {
+          const sc = this.worldToScreen(cam, f.x, f.z);
+          this.drawFishIcon(ctx, sc.x, sc.y, dpr * 0.88, -f.heading, f.species);
+        });
+
+        // Shore Caught Fish Stacks
+        const totalCaught = this.sb.shoreStacks.salmon + this.sb.shoreStacks.bass + this.sb.shoreStacks.toxfish;
+        if (totalCaught > 0) {
+          const stackDefs = [
+            { sp: "salmon", cnt: this.sb.shoreStacks.salmon, label: "三文鱼", x: -2.5, z: -1.8 },
+            { sp: "bass", cnt: this.sb.shoreStacks.bass, label: "鲈鱼", x: -3.4, z: -0.9 },
+            { sp: "toxfish", cnt: this.sb.shoreStacks.toxfish, label: "污染毒鱼", x: -2.7, z: 0.1 }
+          ];
+          stackDefs.forEach((st) => {
+            if (st.cnt <= 0) return;
+            const sc = this.worldToScreen(cam, st.x, st.z);
+            this.drawFishIcon(ctx, sc.x, sc.y, dpr * 1.15, -0.35, st.sp);
+            ctx.font = `bold ${Math.round(10.5 * dpr)}px Consolas, monospace`;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.fillText(`${st.label} x${st.cnt}`, sc.x, sc.y + 15 * dpr);
+          });
+        }
+
+        // Flying Electro-Fished Arcs
+        this.sb.flyingFish.forEach((ff) => {
+          const u = clamp01(ff.progress);
+          const wx = lerp(ff.startX, ff.endX, u);
+          const wz = lerp(ff.startZ, ff.endZ, u) + Math.sin(u * Math.PI) * ff.arcHeight;
+          const sc = this.worldToScreen(cam, wx, wz);
+          this.drawFishIcon(ctx, sc.x, sc.y, dpr * 1.1, u * 6.0, ff.species);
+        });
+
+        // Right-click move order marker
+        if (this.sb.moveOrder) {
+          const mSc = this.worldToScreen(cam, this.sb.moveOrder.x, this.sb.moveOrder.z);
+          const uSc = this.worldToScreen(cam, this.sb.x, this.sb.z);
+          ctx.save();
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(uSc.x, uSc.y);
+          ctx.lineTo(mSc.x, mSc.y);
+          ctx.stroke();
+
+          ctx.strokeStyle = "#3cf2ff";
+          ctx.beginPath();
+          ctx.arc(mSc.x, mSc.y, 8 * dpr, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+      },
+
+      // =======================================================================
+      // INPUT EVENTS
+      // =======================================================================
+      bindEvents() {
+        const canvas = document.getElementById("mainCanvas");
+
+        canvas.addEventListener("mousemove", (e) => {
+          const rect = canvas.getBoundingClientRect();
+          this.mouseX = e.clientX - rect.left;
+          this.mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener("mousedown", (e) => {
+          if (e.button === 0) {
+            if (this.mode === "sandbox" && this.sb.armedSkill > 0) {
+              const sk = this.sb.armedSkill;
+              this.sb.armedSkill = 0;
+              this.updateGizmoHighlights();
+              if (sk === 1) {
+                this.triggerSandboxTeleport(this.mouseWorldX, this.mouseWorldZ);
+              } else if (sk === 2) {
+                // Find closest humanoid pawn near click
+                let best = null, bestD = 2.5;
+                this.sb.pawns.forEach((p) => {
+                  const d = Math.hypot(p.x - this.mouseWorldX, p.z - this.mouseWorldZ);
+                  if (d < bestD) { bestD = d; best = p; }
+                });
+                this.triggerSandboxTherapy(best);
+              }
+              return;
+            }
+            this.mouseDownLeft = true;
+          } else if (e.button === 2 && this.mode === "sandbox") {
+            if (this.sb.armedSkill > 0) {
+              this.sb.armedSkill = 0;
+              this.updateGizmoHighlights();
+            } else {
+              this.sb.moveOrder = { x: clamp(this.mouseWorldX, -15.8, 15.8), z: clamp(this.mouseWorldZ, -9.5, 9.5) };
+            }
+          }
+        });
+
+        window.addEventListener("mouseup", (e) => {
+          if (e.button === 0) this.mouseDownLeft = false;
+        });
+
+        canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+        canvas.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          const factor = e.deltaY < 0 ? 1.12 : 0.89;
+          this.camZoom = clamp(this.camZoom * factor, 0.45, 2.8);
+        }, { passive: false });
+
+        window.addEventListener("keydown", (e) => {
+          this.keys[e.code] = true;
+          if (e.code === "Space" && this.mode === "inspector") {
+            e.preventDefault();
+            this.togglePlay();
+          } else if (e.code === "BracketLeft" && this.mode === "inspector") {
+            this.stepTicks(-1);
+          } else if (e.code === "BracketRight" && this.mode === "inspector") {
+            this.stepTicks(1);
+          } else if (this.mode === "sandbox") {
+            if (e.code === "Digit1") this.armSkill(1);
+            else if (e.code === "Digit2") this.armSkill(2);
+            else if (e.code === "Digit3") this.armSkill(3);
+            else if (e.code === "KeyM") this.manualToggleMorph();
+            else if (e.code === "KeyR") this.resetSandboxPond();
+          }
+        });
+
+        window.addEventListener("keyup", (e) => {
+          this.keys[e.code] = false;
+        });
+      }
+    };
+
+    window.Studio = Studio;
+    window.addEventListener("DOMContentLoaded", () => Studio.init());
+  })();
+  </script>
+</body>
+</html>

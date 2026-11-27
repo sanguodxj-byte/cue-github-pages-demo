@@ -1,0 +1,864 @@
+{
+  "rigId": "KiiroBum_Rig_Stingray",
+  "entityName": "RA3 Stingray / Therapy Shock Vessel",
+  "conventions": {
+    "facingDirection": "North (-Y in image pixels, +Z in Unity world)",
+    "rotationDirection": "Clockwise degrees (0=North/Up, +90=East/Right, +180=South/Down, -90=West/Left)",
+    "pixelsPerCell": 284.44444444444446,
+    "rgbEdgeDilated": true,
+    "supersampleFactor": 4,
+    "paletteHex": {
+      "inkOuter": "#0B0C11",
+      "seamDark": "#222536",
+      "navyBase": "#37406E",
+      "navyLit": "#495383",
+      "navyDark": "#282F53",
+      "navyRecess": "#252A4E",
+      "slateLight": "#6E7385",
+      "slateBase": "#4E515E",
+      "charcoalWell": "#27293D",
+      "charcoalBlock": "#2D3042",
+      "silverBase": "#8E95A8",
+      "silverLit": "#BAC1D2",
+      "cyanAccent": "#56F0FF",
+      "hazardYellow": "#D6CD3A",
+      "hazardDark": "#20222E"
+    }
+  },
+  "nodes": [
+    {
+      "nodeId": "hull_main",
+      "label": "Stingray Armored Boat Hull",
+      "parentId": null,
+      "texFile": "HullMain.png",
+      "glowFile": "HullMain_Glow.png",
+      "resolution": 1024,
+      "drawSize": [
+        3.6,
+        3.6
+      ],
+      "pivotPixel": [
+        512,
+        512
+      ],
+      "parentSocketPixel": null,
+      "muzzlePixel": null,
+      "baseAngle": 0.0,
+      "layerOffset": 0.0,
+      "glowLayerOffset": 0.05,
+      "isAquaticPropulsionPart": true,
+      "emitterSockets": [
+        {
+          "socketId": "stern_jet_left",
+          "pixel": [
+            442,
+            926
+          ],
+          "angleOffset": 180.0
+        },
+        {
+          "socketId": "stern_jet_right",
+          "pixel": [
+            582,
+            926
+          ],
+          "angleOffset": 180.0
+        },
+        {
+          "socketId": "bow_wake_tip",
+          "pixel": [
+            512,
+            74
+          ],
+          "angleOffset": 0.0
+        }
+      ],
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "turret_dome",
+      "label": "Central Tesla Capacitor Dome",
+      "parentId": "hull_main",
+      "texFile": "TurretDome.png",
+      "glowFile": "TurretDome_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        256
+      ],
+      "parentSocketPixel": [
+        512,
+        622
+      ],
+      "muzzlePixel": null,
+      "baseAngle": 0.0,
+      "layerOffset": 2.0,
+      "glowLayerOffset": 0.05,
+      "isReactorCoreBone": true,
+      "lethalWhenDestroyed": true,
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "arm_left_upper",
+      "label": "Port Articulated Conduit Arm",
+      "parentId": "turret_dome",
+      "texFile": "ArmUpperLeft.png",
+      "glowFile": "ArmUpperLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        336
+      ],
+      "parentSocketPixel": [
+        158,
+        256
+      ],
+      "muzzlePixel": null,
+      "baseAngle": -72.0,
+      "layerOffset": 3.0,
+      "glowLayerOffset": 0.05,
+      "aimAtTargetWeight": 0.25,
+      "aimMaxAngle": 24.0,
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -88.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "arm_right_upper",
+      "label": "Starboard Articulated Conduit Arm",
+      "parentId": "turret_dome",
+      "texFile": "ArmUpperRight.png",
+      "glowFile": "ArmUpperRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        336
+      ],
+      "parentSocketPixel": [
+        354,
+        256
+      ],
+      "muzzlePixel": null,
+      "baseAngle": 72.0,
+      "layerOffset": 3.0,
+      "glowLayerOffset": 0.05,
+      "aimAtTargetWeight": 0.25,
+      "aimMaxAngle": 24.0,
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 88.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "tesla_coil_left",
+      "label": "Port Coaxial Tesla Arm Turret",
+      "parentId": "arm_left_upper",
+      "texFile": "TeslaPodLeft.png",
+      "glowFile": "TeslaPodLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        362
+      ],
+      "parentSocketPixel": [
+        256,
+        212
+      ],
+      "muzzlePixel": [
+        256,
+        72
+      ],
+      "baseAngle": 72.0,
+      "layerOffset": 4.0,
+      "glowLayerOffset": 0.05,
+      "isTurret": true,
+      "maxTurretAimAngleDeg": 125.0,
+      "turretRecoilCells": 0.09,
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 88.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "tesla_coil_right",
+      "label": "Starboard Coaxial Tesla Arm Turret",
+      "parentId": "arm_right_upper",
+      "texFile": "TeslaPodRight.png",
+      "glowFile": "TeslaPodRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        362
+      ],
+      "parentSocketPixel": [
+        256,
+        212
+      ],
+      "muzzlePixel": [
+        256,
+        72
+      ],
+      "baseAngle": -72.0,
+      "layerOffset": 4.0,
+      "glowLayerOffset": 0.05,
+      "isTurret": true,
+      "maxTurretAimAngleDeg": 125.0,
+      "turretRecoilCells": 0.09,
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -88.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_fl_femur",
+      "label": "Front-Left Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurLeft.png",
+      "glowFile": "LegFemurLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        384,
+        330
+      ],
+      "muzzlePixel": null,
+      "baseAngle": -45.0,
+      "layerOffset": -5.0,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 202.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_fl_tibia",
+      "label": "Front-Left Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_fl_femur",
+      "texFile": "LegTibiaFootLeft.png",
+      "glowFile": "LegTibiaFootLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": 4.0,
+      "layerOffset": -3.5,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 26.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_fr_femur",
+      "label": "Front-Right Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurRight.png",
+      "glowFile": "LegFemurRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        640,
+        330
+      ],
+      "muzzlePixel": null,
+      "baseAngle": 45.0,
+      "layerOffset": -5.0,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -202.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_fr_tibia",
+      "label": "Front-Right Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_fr_femur",
+      "texFile": "LegTibiaFootRight.png",
+      "glowFile": "LegTibiaFootRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": -4.0,
+      "layerOffset": -3.5,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -26.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_ml_femur",
+      "label": "Mid-Left Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurLeft.png",
+      "glowFile": "LegFemurLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        316,
+        464
+      ],
+      "muzzlePixel": null,
+      "baseAngle": -86.0,
+      "layerOffset": -5.2,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 218.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_ml_tibia",
+      "label": "Mid-Left Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_ml_femur",
+      "texFile": "LegTibiaFootLeft.png",
+      "glowFile": "LegTibiaFootLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": -16.0,
+      "layerOffset": -3.7,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -112.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_mr_femur",
+      "label": "Mid-Right Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurRight.png",
+      "glowFile": "LegFemurRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        708,
+        464
+      ],
+      "muzzlePixel": null,
+      "baseAngle": 86.0,
+      "layerOffset": -5.2,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -218.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_mr_tibia",
+      "label": "Mid-Right Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_mr_femur",
+      "texFile": "LegTibiaFootRight.png",
+      "glowFile": "LegTibiaFootRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": 16.0,
+      "layerOffset": -3.7,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 112.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_rl_femur",
+      "label": "Rear-Left Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurLeft.png",
+      "glowFile": "LegFemurLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        388,
+        650
+      ],
+      "muzzlePixel": null,
+      "baseAngle": -134.0,
+      "layerOffset": -5.4,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 162.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_rl_tibia",
+      "label": "Rear-Left Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_rl_femur",
+      "texFile": "LegTibiaFootLeft.png",
+      "glowFile": "LegTibiaFootLeft_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": -4.0,
+      "layerOffset": -3.9,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": -1.0,
+      "tripodGroup": "A",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -28.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_rr_femur",
+      "label": "Rear-Right Femur Strut",
+      "parentId": "hull_main",
+      "texFile": "LegFemurRight.png",
+      "glowFile": "LegFemurRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        376
+      ],
+      "parentSocketPixel": [
+        636,
+        650
+      ],
+      "muzzlePixel": null,
+      "baseAngle": 134.0,
+      "layerOffset": -5.4,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.24,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": -162.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    },
+    {
+      "nodeId": "leg_rr_tibia",
+      "label": "Rear-Right Hazard Tibia & Faceted Mech Foot",
+      "parentId": "leg_rr_femur",
+      "texFile": "LegTibiaFootRight.png",
+      "glowFile": "LegTibiaFootRight_Glow.png",
+      "resolution": 512,
+      "drawSize": [
+        1.8,
+        1.8
+      ],
+      "pivotPixel": [
+        256,
+        384
+      ],
+      "parentSocketPixel": [
+        256,
+        180
+      ],
+      "muzzlePixel": null,
+      "footTipPixel": [
+        256,
+        92
+      ],
+      "baseAngle": 4.0,
+      "layerOffset": -3.9,
+      "glowLayerOffset": 0.05,
+      "sagittalDropCells": 0.36,
+      "isLocomotionDrivePart": true,
+      "locomotionSideSign": 1.0,
+      "tripodGroup": "B",
+      "landPose": {
+        "angle": 0.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      },
+      "waterPose": {
+        "angle": 28.0,
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "sagittalPitch": 0.0
+      }
+    }
+  ]
+}
